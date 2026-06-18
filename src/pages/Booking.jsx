@@ -7,6 +7,7 @@ const DURASI_OPTIONS = [
   '6 Jam', '12 Jam', '24 Jam (1 Hari)',
   '2 Hari', '3 Hari', '4 Hari',
   '5 Hari', '6 Hari', '1 Minggu',
+  'Lainnya...',
 ];
 const METODE_OPTIONS = ['Antar ke Lokasi', 'Ambil Sendiri', 'With Driver'];
 
@@ -230,9 +231,10 @@ export default function Booking() {
                 <button
                   key={d}
                   type="button"
-                  onClick={() => set('durasi', d)}
+                  onClick={() => set('durasi', d === 'Lainnya...' ? '' : d)}
                   className={`py-2 rounded-xl text-sm font-medium border-2 transition ${
-                    form.durasi === d
+                    (d === 'Lainnya...' && !DURASI_OPTIONS.slice(0,-1).includes(form.durasi) && form.durasi !== '')
+                    || form.durasi === d
                       ? 'border-orange-500 bg-orange-50 text-orange-600'
                       : 'border-gray-200 text-gray-500'
                   }`}
@@ -241,6 +243,16 @@ export default function Booking() {
                 </button>
               ))}
             </div>
+            {/* Input ketik sendiri — muncul jika pilih Lainnya atau durasi tidak ada di list */}
+            {!DURASI_OPTIONS.slice(0, -1).includes(form.durasi) && (
+              <input
+                className={inputCls + ' mt-2'}
+                placeholder="Ketik durasi, cth: 8 Hari, 10 Hari..."
+                value={form.durasi}
+                onChange={(e) => set('durasi', e.target.value)}
+                autoFocus
+              />
+            )}
           </Field>
 
           <Field label="Metode Pengambilan">
