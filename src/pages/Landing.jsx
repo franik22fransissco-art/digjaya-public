@@ -126,7 +126,7 @@ export default function Landing() {
       </div>
 
       {/* Keunggulan */}
-      <div className="mx-4 -mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 grid grid-cols-3 divide-x divide-gray-100">
+      <div className="mx-4 mt-3 bg-white rounded-2xl shadow-sm border border-gray-100 grid grid-cols-3 divide-x divide-gray-100">
         {[
           { icon: CheckCircle, label: 'Unit Terawat', color: 'text-orange-500' },
           { icon: Phone,       label: 'Respon Cepat', color: 'text-orange-500' },
