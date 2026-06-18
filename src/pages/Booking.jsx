@@ -4,8 +4,9 @@ import { ArrowLeft, CheckCircle, AlertCircle, Car, Loader } from 'lucide-react';
 import { getUnits, checkAvailability, submitBooking } from '../utils/api';
 
 const DURASI_OPTIONS = [
-  '1 Hari', '12 Jam', '6 Jam', '2 Jam', '1 Jam',
-  '2 Hari', '3 Hari', '1 Minggu',
+  '6 Jam', '12 Jam', '24 Jam (1 Hari)',
+  '2 Hari', '3 Hari', '4 Hari',
+  '5 Hari', '6 Hari', '1 Minggu',
 ];
 const METODE_OPTIONS = ['Antar ke Lokasi', 'Ambil Sendiri', 'With Driver'];
 
