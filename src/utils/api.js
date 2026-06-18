@@ -41,18 +41,51 @@ export async function checkAvailability(unitId, tglMulai, tglSelesai) {
   return !data?.length; // true = tersedia
 }
 
+// ─── Cek pelanggan lama / baru ───────────────────────────────────────────────
+
+export async function checkPelanggan(noWA) {
+  const clean = noWA.replace(/\D/g, '').replace(/^0/, '62');
+  const { data } = await supabase
+    .from('pelanggan')
+    .select('id, nama, status_verif')
+    .or(`no_wa.eq.${noWA},no_wa.eq.0${clean.slice(2)},no_wa.eq.${clean}`)
+    .maybeSingle();
+  return data || null; // null = pelanggan baru
+}
+
+// ─── Upload dokumen identitas ─────────────────────────────────────────────────
+
+export async function uploadDokumen(noWA, jenis, file) {
+  const ext  = file.name.split('.').pop();
+  const path = `temp/${noWA.replace(/\D/g,'')}/${jenis}.${ext}`;
+  const { error } = await supabase.storage
+    .from('identitas-photos')
+    .upload(path, file, { upsert: true });
+  if (error) return { success: false, message: error.message };
+  const { data: url } = supabase.storage.from('identitas-photos').getPublicUrl(path);
+  return { success: true, path, url: url.publicUrl };
+}
+
 // ─── Submit Booking Request ───────────────────────────────────────────────────
 
-export async function submitBooking({ nama, noWA, unitId, tglMulai, jamMulai, durasi, metode, catatan }) {
+export async function submitBooking({
+  nama, noWA, unitId, tglMulai, jamMulai, durasi, metode, catatan,
+  isBaru, doKtp, doKk, doSim, doSosmed,
+}) {
   const { error } = await supabase.from('booking_request').insert({
-    unit_id:       unitId,
-    tgl_mulai:     tglMulai,
-    jam_mulai:     jamMulai  || null,
-    durasi:        durasi    || null,
-    metode:        metode    || null,
-    catatan:       catatan   || null,
-    nama_pemesan:  nama,
-    no_wa_pemesan: noWA,
+    unit_id:        unitId,
+    tgl_mulai:      tglMulai,
+    jam_mulai:      jamMulai   || null,
+    durasi:         durasi     || null,
+    metode:         metode     || null,
+    catatan:        catatan    || null,
+    nama_pemesan:   nama,
+    no_wa_pemesan:  noWA,
+    is_baru:        isBaru,
+    dokumen_ktp:    doKtp      || null,
+    dokumen_kk:     doKk       || null,
+    dokumen_sim:    doSim      || null,
+    dokumen_sosmed: doSosmed   || null,
   });
   if (error) return { success: false, message: error.message };
   return { success: true };
