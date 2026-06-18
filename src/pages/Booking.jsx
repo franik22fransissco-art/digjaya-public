@@ -123,10 +123,24 @@ export default function Booking() {
     setCheckingWA(false);
   }
 
+  function parseDurasiToDays(durasi) {
+    const str = (durasi || '').toLowerCase();
+    const m = str.match(/(\d+)\s*(jam|hari|minggu)/);
+    if (!m) return 0;
+    const n = parseInt(m[1]);
+    if (m[2] === 'jam')    return n / 24;
+    if (m[2] === 'minggu') return n * 7;
+    return n;
+  }
+
   async function handleCekAvail() {
     if (!form.unitId || !form.tglMulai) { setError('Pilih unit dan tanggal'); return; }
+    const days = parseDurasiToDays(form.durasi);
+    const end  = new Date(form.tglMulai);
+    if (days >= 1) end.setDate(end.getDate() + Math.floor(days));
+    const tglSelesai = end.toISOString().split('T')[0];
     setChecking(true);
-    const ok = await checkAvailability(form.unitId, form.tglMulai, form.tglMulai);
+    const ok = await checkAvailability(form.unitId, form.tglMulai, tglSelesai);
     setAvail(ok);
     setChecking(false);
   }
@@ -140,11 +154,17 @@ export default function Booking() {
     if (form.noWA.replace(/\D/g,'').length < 8) { setError('Nomor WA tidak valid'); return; }
     setError('');
 
-    // Kalau pelanggan baru → minta dokumen
-    if (pelanggan === null) await handleWABlur();
-    const isNew = pelanggan === null || pelanggan === false || !pelanggan?.id;
+    // Langsung await hasil check — jangan andalkan state React yang async
+    let resolved = pelanggan;
+    if (resolved === null) {
+      setCheckingWA(true);
+      resolved = await checkPelanggan(form.noWA);
+      setPelanggan(resolved);
+      setCheckingWA(false);
+    }
+    const isNew = !resolved?.id;
 
-    if (isNew && !pelanggan?.id) {
+    if (isNew) {
       setStep(2);
     } else {
       await doSubmit(false, {});
@@ -155,11 +175,13 @@ export default function Booking() {
   async function handleUploadDok(key, file) {
     if (!file) return;
     setDokLoading((p) => ({ ...p, [key]: true }));
-    const preview = URL.createObjectURL(file);
-    setDokPrev((p) => ({ ...p, [key]: preview }));
     const res = await uploadDokumen(form.noWA, key, file);
-    if (res.success) setDokPath((p) => ({ ...p, [key]: res.path }));
-    else setError(`Gagal upload ${key.toUpperCase()}: ${res.message}`);
+    if (res.success) {
+      setDokPath((p) => ({ ...p, [key]: res.path }));
+      setDokPrev((p) => ({ ...p, [key]: URL.createObjectURL(file) }));
+    } else {
+      setError(`Gagal upload ${key.toUpperCase()}: ${res.message}`);
+    }
     setDokLoading((p) => ({ ...p, [key]: false }));
   }
 
