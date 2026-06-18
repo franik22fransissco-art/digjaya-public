@@ -216,7 +216,7 @@ export default function Landing() {
 
       {/* WA floating */}
       <a
-        href="https://wa.me/62"
+        href="https://wa.me/6285862177805"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-4 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 z-50 active:scale-95 transition"

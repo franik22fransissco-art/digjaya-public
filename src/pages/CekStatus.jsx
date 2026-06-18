@@ -170,7 +170,7 @@ export default function CekStatus() {
                 {r.status === 'REJECTED' && (
                   <div className="pt-2">
                     <a
-                      href="https://wa.me/62"
+                      href="https://wa.me/6285862177805"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block w-full bg-green-500 text-white text-center text-sm font-bold py-2.5 rounded-xl"
