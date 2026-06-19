@@ -12,7 +12,8 @@ const DURASI_OPTIONS = [
   '5 Hari', '6 Hari', '1 Minggu',
   'Lainnya...',
 ];
-const METODE_OPTIONS = ['Antar ke Lokasi', 'Ambil Sendiri', 'With Driver'];
+const METODE_OPTIONS_BARU = ['Antar ke Lokasi', 'With Driver'];
+const METODE_OPTIONS_LAMA = ['Antar ke Lokasi', 'Ambil Sendiri', 'With Driver'];
 
 const DOKUMEN_LIST = [
   { key: 'ktp',    label: 'Foto KTP',             required: true  },
@@ -127,6 +128,8 @@ export default function Booking() {
     setPelanggan(result);
     setRiskInfo(risk);
     setCheckingWA(false);
+    // Reset metode jika customer baru dan sudah pilih Ambil Sendiri
+    if (!result && form.metode === 'Ambil Sendiri') set('metode', 'Antar ke Lokasi');
   }
 
   function parseDurasiToDays(durasi) {
@@ -457,7 +460,7 @@ export default function Booking() {
           </Field>
 
           <Field label="Metode Pengambilan" required>
-            {METODE_OPTIONS.map((m) => (
+            {(pelanggan ? METODE_OPTIONS_LAMA : METODE_OPTIONS_BARU).map((m) => (
               <button key={m} type="button" onClick={() => set('metode', m)}
                 className={`w-full mb-2 last:mb-0 py-2.5 rounded-xl text-sm font-medium border-2 transition text-left px-3 ${
                   form.metode === m
@@ -467,6 +470,11 @@ export default function Booking() {
                 {form.metode === m ? '● ' : '○ '}{m}
               </button>
             ))}
+            {!pelanggan && (
+              <p className="text-[11px] text-gray-400 mt-1">
+                ℹ Opsi "Ambil Sendiri" tersedia setelah verifikasi domisili (rental kedua dst.)
+              </p>
+            )}
           </Field>
 
           {form.metode === 'With Driver' && (
