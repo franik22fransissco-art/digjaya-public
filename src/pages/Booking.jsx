@@ -89,10 +89,11 @@ export default function Booking() {
     catatan:  '',
   });
 
-  // Info pelanggan (null = belum dicek, object = lama)
+  // Info pelanggan (null = belum dicek/baru, object = lama)
   const [pelanggan,  setPelanggan]  = useState(null);
   const [riskInfo,   setRiskInfo]   = useState({ status: 'OK', catatan: '' });
   const [checkingWA, setCheckingWA] = useState(false);
+  const [waChecked,  setWaChecked]  = useState(false);
 
   // Availability
   const [avail, setAvail]       = useState(null);
@@ -128,6 +129,7 @@ export default function Booking() {
     setPelanggan(result);
     setRiskInfo(risk);
     setCheckingWA(false);
+    setWaChecked(true);
     // Reset metode jika customer baru dan sudah pilih Ambil Sendiri
     if (!result && form.metode === 'Ambil Sendiri') set('metode', 'Antar ke Lokasi');
   }
@@ -376,7 +378,7 @@ export default function Booking() {
                 </p>
               </div>
             )}
-            {!checkingWA && pelanggan !== null && !pelanggan?.id && riskInfo.status !== 'REJECT' && (
+            {!checkingWA && waChecked && !pelanggan && riskInfo.status !== 'REJECT' && (
               <div className="flex items-center gap-1.5 mt-1.5 bg-blue-50 border border-blue-200 rounded-lg px-2 py-1">
                 <UserPlus className="w-3.5 h-3.5 text-blue-600" />
                 <p className="text-[11px] text-blue-700 font-medium">

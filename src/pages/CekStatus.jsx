@@ -149,7 +149,7 @@ export default function CekStatus() {
                 <div className="flex justify-between">
                   <p className="text-xs text-gray-400">Kendaraan</p>
                   <p className="text-sm font-bold text-gray-800">
-                    {r.unit?.nama || '—'} <span className="font-normal text-gray-500">({r.unit?.tipe})</span>
+                    {r.unit?.nama || '—'} {r.unit?.tipe && <span className="font-normal text-gray-500">({r.unit.tipe})</span>}
                   </p>
                 </div>
                 <div className="flex justify-between">

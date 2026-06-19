@@ -24,8 +24,9 @@ export async function getUnitPhotos(unitId) {
       const { data: url } = supabase.storage
         .from('unit-photos')
         .getPublicUrl(`units/${unitId}/${f.name}`);
-      return url.publicUrl;
-    });
+      return url?.publicUrl || null;
+    })
+    .filter(Boolean);
 }
 
 // ─── Availability ─────────────────────────────────────────────────────────────
