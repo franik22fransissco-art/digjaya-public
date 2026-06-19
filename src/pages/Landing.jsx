@@ -69,15 +69,13 @@ function UnitCard({ unit, onClick }) {
       <div className="p-3">
         <p className="font-bold text-gray-800 text-sm truncate">{unit.nama}</p>
         <p className="text-xs text-gray-400">{unit.tipe}</p>
-        {unit.tipe === 'Motor' && unit.harga_per_hari ? (
+        {(unit.harga_12jam || unit.harga_per_hari) && (
           <p className="text-xs text-orange-500 font-semibold mt-0.5">
-            Rp {fmtRp(unit.harga_per_hari)}/hari
+            {unit.tipe === 'Motor'
+              ? `Rp ${fmtRp(unit.harga_12jam)} / ${fmtRp(unit.harga_per_hari)}`
+              : `Rp ${fmtRp(unit.harga_12jam)} / ${fmtRp(unit.harga_24jam)}`}
           </p>
-        ) : unit.harga_12jam ? (
-          <p className="text-xs text-orange-500 font-semibold mt-0.5">
-            Rp {fmtRp(unit.harga_12jam)} – {fmtRp(unit.harga_24jam)}
-          </p>
-        ) : null}
+        )}
         <div className="mt-2" />
         {available && (
           <button className="w-full py-1.5 rounded-xl bg-orange-500 text-white text-xs font-bold">
@@ -223,7 +221,7 @@ export default function Landing() {
 
       {/* Daftar Harga — dinamis dari data unit */}
       {(() => {
-        const motorDenganHarga = units.filter((u) => u.tipe === 'Motor' && u.harga_per_hari);
+        const motorDenganHarga = units.filter((u) => u.tipe === 'Motor' && (u.harga_12jam || u.harga_per_hari));
         const mobilDenganHarga = units.filter((u) => u.tipe !== 'Motor' && (u.harga_12jam || u.harga_24jam));
         if (motorDenganHarga.length === 0 && mobilDenganHarga.length === 0) return null;
         const tabMotor = priceTab === 'Motor';
@@ -253,14 +251,10 @@ export default function Landing() {
                       <th className="text-left px-3 py-2 text-gray-500 font-semibold">
                         {tabMotor ? 'Jenis Motor' : 'Jenis Mobil'}
                       </th>
-                      {tabMotor ? (
-                        <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">Per Hari</th>
-                      ) : (
-                        <>
-                          <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">12 Jam</th>
-                          <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">24 Jam</th>
-                        </>
-                      )}
+                      <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">12 Jam</th>
+                      <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">
+                        {tabMotor ? 'Per Hari' : '24 Jam'}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -269,20 +263,14 @@ export default function Landing() {
                         <td className="px-3 py-1.5 text-gray-700 font-medium">
                           {tabMotor ? '🏍️' : '🚗'} {u.nama}
                         </td>
-                        {tabMotor ? (
-                          <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">
-                            Rp {fmtRp(u.harga_per_hari)}
-                          </td>
-                        ) : (
-                          <>
-                            <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">
-                              {u.harga_12jam ? `Rp ${fmtRp(u.harga_12jam)}` : '—'}
-                            </td>
-                            <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">
-                              {u.harga_24jam ? `Rp ${fmtRp(u.harga_24jam)}` : '—'}
-                            </td>
-                          </>
-                        )}
+                        <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">
+                          {u.harga_12jam ? `Rp ${fmtRp(u.harga_12jam)}` : '—'}
+                        </td>
+                        <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">
+                          {tabMotor
+                            ? (u.harga_per_hari ? `Rp ${fmtRp(u.harga_per_hari)}` : '—')
+                            : (u.harga_24jam    ? `Rp ${fmtRp(u.harga_24jam)}`    : '—')}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
