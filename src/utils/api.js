@@ -45,12 +45,24 @@ export async function checkAvailability(unitId, tglMulai, tglSelesai) {
 
 export async function checkPelanggan(noWA) {
   const clean = noWA.replace(/\D/g, '').replace(/^0/, '62');
-  const { data } = await supabase
+  const { data: pel } = await supabase
     .from('pelanggan')
     .select('id, nama, status_verif')
     .or(`no_wa.eq.${noWA},no_wa.eq.0${clean.slice(2)},no_wa.eq.${clean}`)
     .maybeSingle();
-  return data || null; // null = pelanggan baru
+
+  if (!pel) return null; // benar-benar belum pernah daftar
+
+  // Pelanggan "lama" hanya jika sudah ada transaksi SELESAI minimal 1x
+  const { count } = await supabase
+    .from('transaksi')
+    .select('id', { count: 'exact', head: true })
+    .eq('pelanggan_id', pel.id)
+    .eq('status', 'SELESAI');
+
+  if (!count || count === 0) return null; // ada di DB tapi belum pernah selesai sewa
+
+  return pel; // benar-benar pelanggan lama
 }
 
 // ─── Upload dokumen identitas ─────────────────────────────────────────────────
