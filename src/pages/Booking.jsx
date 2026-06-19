@@ -327,9 +327,12 @@ export default function Booking() {
       <div className="bg-orange-500 text-white px-4 pt-10 pb-5">
         <div className="flex items-center gap-3 mb-1">
           <button onClick={() => navigate(-1)}><ArrowLeft className="w-5 h-5" /></button>
-          <div>
-            <p className="text-xs opacity-75">DIGJAYA RENTAL</p>
-            <h1 className="font-bold text-lg">Form Pemesanan</h1>
+          <div className="flex items-center gap-2">
+            <img src="/logo.jpg" alt="DIGJAYA" className="h-6 w-6 object-contain rounded" />
+            <div>
+              <p className="text-xs opacity-75">DIGJAYA RENTAL</p>
+              <h1 className="font-bold text-lg">Form Pemesanan</h1>
+            </div>
           </div>
         </div>
         {unitNama && (

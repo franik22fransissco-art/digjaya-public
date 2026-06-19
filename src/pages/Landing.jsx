@@ -104,9 +104,7 @@ export default function Landing() {
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center">
-            <Car className="w-4 h-4 text-white" />
-          </div>
+          <img src="/logo.jpg" alt="DIGJAYA" className="h-7 w-7 object-contain rounded" />
           <p className="font-bold text-white tracking-wide text-sm">DIGJAYA RENTAL</p>
         </div>
         <button
