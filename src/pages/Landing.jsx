@@ -89,6 +89,7 @@ export default function Landing() {
   const [units, setUnits]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState('semua');
+  const [priceTab, setPriceTab] = useState('Mobil');
 
   useEffect(() => {
     getUnits().then((res) => {
@@ -202,6 +203,86 @@ export default function Landing() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Daftar Harga */}
+      <div className="px-4 mb-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-gray-800 px-4 py-3 flex items-center justify-between">
+            <h2 className="font-bold text-white text-sm">📋 Daftar Harga Sewa</h2>
+            <div className="flex bg-gray-700 rounded-lg p-0.5 gap-0.5">
+              {['Mobil','Motor'].map((t) => (
+                <button key={t} onClick={() => setPriceTab(t)}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition ${priceTab===t?'bg-orange-500 text-white':'text-gray-400'}`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {priceTab === 'Mobil' ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead><tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="text-left px-3 py-2 text-gray-500 font-semibold">Jenis Mobil</th>
+                  <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">12 Jam</th>
+                  <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">24 Jam</th>
+                </tr></thead>
+                <tbody>
+                  {[
+                    ['Agya MT','250rb','300rb'],['Brio MT','250rb','300rb'],['Brio AT','300rb','350rb'],
+                    ['Raize AT','350rb','400rb'],['City Hatchback AT','400rb','450rb'],
+                    ['Yaris E AT','300rb','350rb'],['Yaris TRD AT','400rb','450rb'],
+                    ['HR-V SE AT','550rb','600rb'],['Xforce AT','550rb','600rb'],
+                    ['New Carry Pickup','250rb','300rb'],['Carry Pickup','250rb','300rb'],
+                    ['Granmax Pickup','250rb','300rb'],['Granmax Pickup AC PS','300rb','350rb'],
+                    ['Calya MT','250rb','300rb'],['Calya AT','300rb','350rb'],
+                    ['Sigra MT','250rb','300rb'],['Sigra AT','300rb','350rb'],
+                    ['Avanza MT','300rb','350rb'],['Avanza AT','350rb','400rb'],
+                    ['BR-V N7X AT','400rb','450rb'],['BR-V Prestige AT','450rb','500rb'],
+                    ['Rush MT','350rb','400rb'],['Rush AT','400rb','450rb'],
+                    ['Terios MT','400rb','450rb'],['Terios AT','400rb','450rb'],
+                    ['Veloz AT','400rb','450rb'],['Xpander AT','400rb','450rb'],
+                    ['Innova Reborn Bensin','500rb','550rb'],['Innova Reborn Diesel','700rb','750rb'],
+                    ['Innova Zenix Hybrid','900rb','1jt'],['Pajero Sport','1,2jt','1,3jt'],
+                  ].map(([nama,h12,h24],i) => (
+                    <tr key={i} className={i%2===0?'bg-white':'bg-gray-50/60'}>
+                      <td className="px-3 py-1.5 text-gray-700 font-medium">🚗 {nama}</td>
+                      <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">Rp {h12}</td>
+                      <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">Rp {h24}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead><tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="text-left px-3 py-2 text-gray-500 font-semibold">Jenis Motor</th>
+                  <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">Per Hari</th>
+                </tr></thead>
+                <tbody>
+                  {[
+                    ['Honda Beat Deluxe','125rb'],['Honda Scoopy','150rb'],
+                    ['Yamaha Fazzio','160rb'],['Yamaha Filano','160rb'],
+                    ['Honda Vario','160rb'],['Honda PCX 160','175rb'],
+                    ['Yamaha NMAX','175rb'],['Kawasaki Ninja','250rb'],
+                  ].map(([nama,harga],i) => (
+                    <tr key={i} className={i%2===0?'bg-white':'bg-gray-50/60'}>
+                      <td className="px-3 py-1.5 text-gray-700 font-medium">🏍️ {nama}</td>
+                      <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">Rp {harga}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="px-4 py-2 bg-orange-50 border-t border-orange-100">
+            <p className="text-[10px] text-orange-600">* Harga belum termasuk sopir. Hubungi admin untuk info terkini.</p>
+          </div>
+        </div>
       </div>
 
       {/* Cara Pesan */}
