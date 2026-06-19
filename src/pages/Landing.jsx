@@ -3,26 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Car, CheckCircle, Phone, Clock, Star, ChevronRight, Bike } from 'lucide-react';
 import { getUnits, getUnitPhotos } from '../utils/api';
 
-// Foto default berdasarkan nama unit (dipakai jika admin belum upload foto)
-const PHOTO_MAP = [
-  { keys: ['nmax', 'aerox'],           url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
-  { keys: ['pcx'],                      url: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=600&q=80' },
-  { keys: ['beat', 'vario', 'scoopy'], url: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=600&q=80' },
-  { keys: ['mio'],                      url: 'https://images.unsplash.com/photo-1558979159-2b18a4070a87?w=600&q=80' },
-  { keys: ['xpander', 'innova'],       url: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80' },
-  { keys: ['brio', 'agya', 'ayla'],    url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80' },
-  { keys: ['avanza', 'xenia', 'calya', 'sigra'], url: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80' },
-  { keys: ['fortuner', 'rush', 'terios'],        url: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80' },
-];
+// Foto fallback jika unit.foto_url kosong dan belum ada foto custom dari admin
+const FALLBACK_MOTOR = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80';
+const FALLBACK_MOBIL = 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80';
 
 function getDefaultPhoto(unit) {
-  const name = (unit.nama || '').toLowerCase();
-  for (const { keys, url } of PHOTO_MAP) {
-    if (keys.some((k) => name.includes(k))) return url;
-  }
-  return unit.tipe === 'Motor'
-    ? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'
-    : 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80';
+  // Prioritas 1: foto_url yang disimpan di DB (per unit)
+  if (unit.foto_url) return unit.foto_url;
+  // Prioritas 2: fallback generik berdasarkan tipe
+  return unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
 }
 
 const STATUS_LABEL = {
