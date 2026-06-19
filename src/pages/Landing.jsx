@@ -31,6 +31,15 @@ function UnitCard({ unit, onClick }) {
     getUnitPhotos(unit.id).then((urls) => { if (urls[0]) setPhoto(urls[0]); });
   }, [unit.id]);
 
+  function handleImgError() {
+    const fallback = unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
+    if (photo !== fallback) {
+      setPhoto(fallback);
+    } else {
+      setImgErr(true);
+    }
+  }
+
   return (
     <div
       onClick={() => available && onClick(unit)}
@@ -43,7 +52,7 @@ function UnitCard({ unit, onClick }) {
           <img
             src={photo} alt={unit.nama}
             className="w-full h-full object-cover"
-            onError={() => setImgErr(true)}
+            onError={handleImgError}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100">
