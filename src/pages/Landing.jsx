@@ -103,7 +103,7 @@ export default function Landing() {
   const [units, setUnits]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState('semua');
-  const [priceTab, setPriceTab] = useState('Mobil');
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     getUnits().then((res) => {
@@ -189,7 +189,7 @@ export default function Landing() {
             ].map((f) => (
               <button
                 key={f.key}
-                onClick={() => setFilter(f.key)}
+                onClick={() => { setFilter(f.key); setShowAll(false); }}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                   filter === f.key
                     ? 'bg-orange-500 text-white'
@@ -211,79 +211,23 @@ export default function Landing() {
         ) : filtered.length === 0 ? (
           <p className="text-center text-gray-400 py-10 text-sm">Tidak ada unit tersedia</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {filtered.map((u) => (
-              <UnitCard key={u.id} unit={u} onClick={handlePesan} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              {(showAll ? filtered : filtered.slice(0, 6)).map((u) => (
+                <UnitCard key={u.id} unit={u} onClick={handlePesan} />
+              ))}
+            </div>
+            {!showAll && filtered.length > 6 && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="w-full mt-3 py-2.5 rounded-xl border-2 border-orange-300 text-orange-600 text-sm font-semibold flex items-center justify-center gap-1 active:scale-95 transition"
+              >
+                Lihat Selengkapnya ({filtered.length - 6} unit lagi) <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+          </>
         )}
       </div>
-
-      {/* Daftar Harga — dinamis dari data unit */}
-      {(() => {
-        const motorDenganHarga = units.filter((u) => u.tipe === 'Motor' && (u.harga_12jam || u.harga_per_hari));
-        const mobilDenganHarga = units.filter((u) => u.tipe !== 'Motor' && (u.harga_12jam || u.harga_24jam));
-        if (motorDenganHarga.length === 0 && mobilDenganHarga.length === 0) return null;
-        const tabMotor = priceTab === 'Motor';
-        const rows = tabMotor ? motorDenganHarga : mobilDenganHarga;
-        return (
-          <div className="px-4 mb-4">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="bg-gray-800 px-4 py-3 flex items-center justify-between">
-                <h2 className="font-bold text-white text-sm">📋 Daftar Harga Sewa</h2>
-                <div className="flex bg-gray-700 rounded-lg p-0.5 gap-0.5">
-                  {[
-                    mobilDenganHarga.length > 0 && 'Mobil',
-                    motorDenganHarga.length > 0 && 'Motor',
-                  ].filter(Boolean).map((t) => (
-                    <button key={t} onClick={() => setPriceTab(t)}
-                      className={`px-3 py-1 rounded-md text-xs font-semibold transition ${priceTab===t?'bg-orange-500 text-white':'text-gray-400'}`}>
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="text-left px-3 py-2 text-gray-500 font-semibold">
-                        {tabMotor ? 'Jenis Motor' : 'Jenis Mobil'}
-                      </th>
-                      <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">12 Jam</th>
-                      <th className="text-right px-3 py-2 text-gray-500 font-semibold whitespace-nowrap">
-                        {tabMotor ? 'Per Hari' : '24 Jam'}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((u, i) => (
-                      <tr key={u.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}>
-                        <td className="px-3 py-1.5 text-gray-700 font-medium">
-                          {tabMotor ? '🏍️' : '🚗'} {u.nama}
-                        </td>
-                        <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">
-                          {u.harga_12jam ? `Rp ${fmtRp(u.harga_12jam)}` : '—'}
-                        </td>
-                        <td className="px-3 py-1.5 text-right text-orange-600 font-bold whitespace-nowrap">
-                          {tabMotor
-                            ? (u.harga_per_hari ? `Rp ${fmtRp(u.harga_per_hari)}` : '—')
-                            : (u.harga_24jam    ? `Rp ${fmtRp(u.harga_24jam)}`    : '—')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="px-4 py-2 bg-orange-50 border-t border-orange-100">
-                <p className="text-[10px] text-orange-600">* Harga belum termasuk sopir. Hubungi admin untuk info terkini.</p>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* Cara Pesan */}
       <div className="mx-4 mb-4 bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
