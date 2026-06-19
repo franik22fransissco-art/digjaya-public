@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 export async function getUnits() {
   const { data, error } = await supabase
     .from('units')
-    .select('id, nama, tipe, status, foto_url')
+    .select('id, nama, tipe, status, foto_url, harga_per_hari, harga_12jam, harga_24jam')
     .eq('aktif', true)
     .order('tipe')
     .order('nama');
