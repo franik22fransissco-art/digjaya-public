@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Search, Clock, CheckCircle, XCircle, Loader } from 'lucide-react';
+import { ArrowLeft, Search, Clock, CheckCircle, XCircle, Loader, Copy, Check } from 'lucide-react';
 import { getStatusByWA } from '../utils/api';
 
 const STATUS_CONFIG = {
@@ -8,6 +8,11 @@ const STATUS_CONFIG = {
   APPROVED: { label: 'Disetujui!',          icon: CheckCircle,   cls: 'bg-green-50  text-green-700  border-green-200',  iconCls: 'text-green-500'  },
   REJECTED: { label: 'Tidak Disetujui',     icon: XCircle,       cls: 'bg-red-50    text-red-700    border-red-200',    iconCls: 'text-red-500'    },
 };
+
+const REKENING = [
+  { id: 'bca',  icon: '🏦', label: 'Transfer Bank BCA', no: '0551941000',   nama: 'Franik Fransissco', warna: 'border-blue-200 bg-blue-50' },
+  { id: 'dana', icon: '💙', label: 'DANA',              no: '085703622538', nama: 'Franik Fransissco', warna: 'border-blue-100 bg-sky-50'  },
+];
 
 function fmtDate(str) {
   if (!str) return '';
@@ -24,6 +29,26 @@ function fmtDateTime(str) {
   });
 }
 
+function CopyBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  function handleCopy() {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+  return (
+    <button
+      onClick={handleCopy}
+      className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition ${
+        copied ? 'bg-green-100 text-green-700 border-green-300' : 'bg-white text-blue-600 border-blue-200'
+      }`}
+    >
+      {copied ? <><Check className="w-3 h-3" /> Disalin</> : <><Copy className="w-3 h-3" /> Salin</>}
+    </button>
+  );
+}
+
 export default function CekStatus() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -33,7 +58,6 @@ export default function CekStatus() {
   const [searched, setSearched] = useState(false);
   const [error, setError]       = useState('');
 
-  // Auto-search kalau WA dari query param
   useEffect(() => {
     if (params.get('wa')) handleCari();
   }, []); // eslint-disable-line
@@ -90,7 +114,7 @@ export default function CekStatus() {
           </button>
         </form>
 
-        {/* Hasil */}
+        {/* Hasil tidak ditemukan */}
         {searched && results.length === 0 && (
           <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
             <p className="text-2xl mb-2">🔍</p>
@@ -102,14 +126,19 @@ export default function CekStatus() {
         )}
 
         {results.map((r) => {
-          const cfg = STATUS_CONFIG[r.status] || STATUS_CONFIG.PENDING;
+          const cfg  = STATUS_CONFIG[r.status] || STATUS_CONFIG.PENDING;
           const Icon = cfg.icon;
+          const ada_harga = r.status === 'APPROVED' && r.nominal > 0;
+
           return (
             <div key={r.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
               {/* Status bar */}
               <div className={`px-4 py-3 border flex items-center gap-2 ${cfg.cls}`}>
                 <Icon className={`w-5 h-5 ${cfg.iconCls}`} />
                 <p className="font-bold text-sm">{cfg.label}</p>
+                {r.inv && (
+                  <span className="ml-auto text-[10px] font-mono font-semibold opacity-70">{r.inv}</span>
+                )}
               </div>
 
               {/* Detail */}
@@ -148,27 +177,70 @@ export default function CekStatus() {
                     <p className="text-sm text-gray-600 mt-0.5">{r.catatan}</p>
                   </div>
                 )}
+
+                {/* Harga + Pembayaran (jika sudah disetujui dan ada nominal) */}
+                {ada_harga && (
+                  <div className="pt-2 space-y-3 border-t border-gray-100 mt-2">
+                    {/* Total harga */}
+                    <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-center">
+                      <p className="text-xs text-orange-600 font-medium mb-0.5">Total Pembayaran</p>
+                      <p className="text-2xl font-bold text-orange-700">
+                        Rp {Number(r.nominal).toLocaleString('id-ID')}
+                      </p>
+                    </div>
+
+                    {/* Opsi bayar */}
+                    <p className="text-xs font-bold text-gray-600">Pilih Metode Pembayaran:</p>
+
+                    {/* Cash */}
+                    <div className="flex items-center gap-3 border border-gray-200 rounded-xl p-3">
+                      <span className="text-2xl">💵</span>
+                      <div>
+                        <p className="font-semibold text-sm text-gray-800">Tunai / Cash</p>
+                        <p className="text-xs text-gray-400">Bayar langsung saat pengambilan kendaraan</p>
+                      </div>
+                    </div>
+
+                    {/* Transfer & Dana */}
+                    {REKENING.map((rek) => (
+                      <div key={rek.id} className={`flex items-center gap-3 border rounded-xl p-3 ${rek.warna}`}>
+                        <span className="text-2xl">{rek.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-gray-800">{rek.label}</p>
+                          <p className="text-base font-bold font-mono text-gray-900 tracking-wide">{rek.no}</p>
+                          <p className="text-xs text-gray-500">a.n. {rek.nama}</p>
+                        </div>
+                        <CopyBtn text={rek.no} />
+                      </div>
+                    ))}
+
+                    <p className="text-[11px] text-gray-400 text-center">
+                      Setelah transfer, simpan bukti pembayaran dan tunjukkan saat pengambilan
+                    </p>
+                  </div>
+                )}
+
                 <p className="text-[11px] text-gray-300 pt-1">
                   Dipesan: {fmtDateTime(r.created_at)}
                 </p>
 
-                {/* Aksi berdasar status */}
-                {r.status === 'APPROVED' && (
-                  <div className="pt-2 bg-green-50 rounded-xl p-3 text-center">
+                {/* Pesan status */}
+                {r.status === 'APPROVED' && !ada_harga && (
+                  <div className="bg-green-50 rounded-xl p-3 text-center">
                     <p className="text-xs text-green-700 font-medium">
                       Pesanan disetujui! Tim kami akan menghubungi kamu segera.
                     </p>
                   </div>
                 )}
                 {r.status === 'PENDING' && (
-                  <div className="pt-2 bg-yellow-50 rounded-xl p-3 text-center">
+                  <div className="bg-yellow-50 rounded-xl p-3 text-center">
                     <p className="text-xs text-yellow-700">
                       Sedang diproses. Estimasi konfirmasi: <strong>15 menit</strong>
                     </p>
                   </div>
                 )}
                 {r.status === 'REJECTED' && (
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <a
                       href="https://wa.me/6285862177805"
                       target="_blank"
@@ -184,7 +256,6 @@ export default function CekStatus() {
           );
         })}
 
-        {/* Tombol pesan baru */}
         {searched && (
           <button
             onClick={() => navigate('/booking')}
