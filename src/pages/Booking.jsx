@@ -79,6 +79,7 @@ export default function Booking() {
   const [form, setForm]   = useState({
     nama:     '',
     noWA:     '',
+    tujuan:   '',
     unitId:   params.get('unitId') || '',
     tglMulai: '',
     jamMulai: '',
@@ -147,11 +148,14 @@ export default function Booking() {
 
   // Step 1 → next
   async function handleStep1() {
-    const { nama, noWA, unitId, tglMulai, durasi, metode } = form;
+    const { nama, noWA, unitId, tglMulai, durasi, metode, tujuan } = form;
     if (!nama || !noWA || !unitId || !tglMulai || !durasi || !metode) {
       setError('Semua field wajib diisi'); return;
     }
     if (form.noWA.replace(/\D/g,'').length < 8) { setError('Nomor WA tidak valid'); return; }
+    if (metode === 'With Driver' && !tujuan.trim()) {
+      setError('Tujuan/rute wajib diisi untuk layanan With Driver'); return;
+    }
     setError('');
 
     // Langsung await hasil check — jangan andalkan state React yang async
@@ -195,8 +199,12 @@ export default function Booking() {
 
   async function doSubmit(isBaru, dok) {
     setSubmitting(true);
+    const catatanFinal = form.metode === 'With Driver'
+      ? `[Tujuan] ${form.tujuan}${form.catatan ? '\n' + form.catatan : ''}`
+      : form.catatan;
     const res = await submitBooking({
       ...form,
+      catatan: catatanFinal,
       isBaru,
       doKtp:    dok.ktp    || null,
       doKk:     dok.kk     || null,
@@ -425,6 +433,22 @@ export default function Booking() {
               </button>
             ))}
           </Field>
+
+          {form.metode === 'With Driver' && (
+            <Field label="Tujuan / Rute" required hint="Misal: Jemput Kalijati → Pasar Subang, dari Bandara ke Hotel X">
+              <textarea
+                className={inputCls + ' resize-none border-orange-300 focus:border-orange-500'}
+                rows={3}
+                placeholder="Tulis titik jemput dan tujuan secara jelas..."
+                value={form.tujuan}
+                onChange={(e) => set('tujuan', e.target.value)}
+                autoFocus
+              />
+              <p className="text-[11px] text-orange-500 font-medium mt-1">
+                ⚠ Harga With Driver ditentukan berdasarkan rute — tulis sejelas mungkin
+              </p>
+            </Field>
+          )}
 
           <Field label="Catatan (opsional)">
             <textarea className={inputCls + ' resize-none'} rows={3}
