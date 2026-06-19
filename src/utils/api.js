@@ -65,6 +65,19 @@ export async function checkPelanggan(noWA) {
   return pel; // benar-benar pelanggan lama
 }
 
+// ─── Cek blacklist / risk status pelanggan ───────────────────────────────────
+
+export async function checkBlacklist(noWA) {
+  const clean = noWA.replace(/\D/g, '').replace(/^0/, '62');
+  const { data } = await supabase
+    .from('pelanggan')
+    .select('risk_status, risk_catatan')
+    .or(`no_wa.eq.${noWA},no_wa.eq.0${clean.slice(2)},no_wa.eq.${clean}`)
+    .maybeSingle();
+  if (!data) return { status: 'OK', catatan: '' };
+  return { status: data.risk_status || 'OK', catatan: data.risk_catatan || '' };
+}
+
 // ─── Upload dokumen identitas ─────────────────────────────────────────────────
 
 export async function uploadDokumen(noWA, jenis, file) {

@@ -4,7 +4,7 @@ import {
   ArrowLeft, CheckCircle, AlertCircle, Car,
   Loader, Upload, UserCheck, UserPlus, ChevronRight,
 } from 'lucide-react';
-import { getUnits, checkAvailability, checkPelanggan, uploadDokumen, submitBooking } from '../utils/api';
+import { getUnits, checkAvailability, checkPelanggan, checkBlacklist, uploadDokumen, submitBooking } from '../utils/api';
 
 const DURASI_OPTIONS = [
   '6 Jam', '12 Jam', '24 Jam (1 Hari)',
@@ -88,8 +88,9 @@ export default function Booking() {
     catatan:  '',
   });
 
-  // Info pelanggan (null = belum dicek, false = baru, object = lama)
-  const [pelanggan, setPelanggan]   = useState(null);
+  // Info pelanggan (null = belum dicek, object = lama)
+  const [pelanggan,  setPelanggan]  = useState(null);
+  const [riskInfo,   setRiskInfo]   = useState({ status: 'OK', catatan: '' });
   const [checkingWA, setCheckingWA] = useState(false);
 
   // Availability
@@ -114,13 +115,17 @@ export default function Booking() {
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); setAvail(null); setError(''); }
 
-  // Cek pelanggan saat WA di-blur
+  // Cek pelanggan + blacklist saat WA di-blur
   async function handleWABlur() {
     const wa = form.noWA.trim().replace(/\D/g, '');
     if (wa.length < 8) return;
     setCheckingWA(true);
-    const result = await checkPelanggan(form.noWA);
-    setPelanggan(result); // null = baru, object = lama
+    const [result, risk] = await Promise.all([
+      checkPelanggan(form.noWA),
+      checkBlacklist(form.noWA),
+    ]);
+    setPelanggan(result);
+    setRiskInfo(risk);
     setCheckingWA(false);
   }
 
@@ -160,12 +165,23 @@ export default function Booking() {
 
     // Langsung await hasil check — jangan andalkan state React yang async
     let resolved = pelanggan;
+    let risk = riskInfo;
     if (resolved === null) {
       setCheckingWA(true);
-      resolved = await checkPelanggan(form.noWA);
+      [resolved, risk] = await Promise.all([
+        checkPelanggan(form.noWA),
+        checkBlacklist(form.noWA),
+      ]);
       setPelanggan(resolved);
+      setRiskInfo(risk);
       setCheckingWA(false);
     }
+
+    if (risk.status === 'REJECT') {
+      setError(`Nomor ini tidak dapat melakukan pemesanan${risk.catatan ? ': ' + risk.catatan : ''}. Hubungi kami untuk info lebih lanjut.`);
+      return;
+    }
+
     const isNew = !resolved?.id;
 
     if (isNew) {
@@ -354,11 +370,27 @@ export default function Booking() {
                 </p>
               </div>
             )}
-            {!checkingWA && pelanggan !== null && !pelanggan?.id && (
+            {!checkingWA && pelanggan !== null && !pelanggan?.id && riskInfo.status !== 'REJECT' && (
               <div className="flex items-center gap-1.5 mt-1.5 bg-blue-50 border border-blue-200 rounded-lg px-2 py-1">
                 <UserPlus className="w-3.5 h-3.5 text-blue-600" />
                 <p className="text-[11px] text-blue-700 font-medium">
                   Pelanggan baru — akan diminta upload identitas di langkah berikutnya
+                </p>
+              </div>
+            )}
+            {!checkingWA && riskInfo.status === 'REJECT' && (
+              <div className="flex items-start gap-1.5 mt-1.5 bg-red-50 border border-red-300 rounded-lg px-2 py-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-red-700 font-medium">
+                  Nomor ini tidak dapat melakukan pemesanan{riskInfo.catatan ? ` — ${riskInfo.catatan}` : ''}
+                </p>
+              </div>
+            )}
+            {!checkingWA && riskInfo.status === 'WARNING' && (
+              <div className="flex items-start gap-1.5 mt-1.5 bg-amber-50 border border-amber-300 rounded-lg px-2 py-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-amber-700 font-medium">
+                  ⚠ Nomor ini tercatat pernah bermasalah — tim kami akan memverifikasi pesanan Anda
                 </p>
               </div>
             )}
@@ -464,7 +496,7 @@ export default function Booking() {
           </div>
         )}
 
-        <button type="submit" disabled={submitting}
+        <button type="submit" disabled={submitting || riskInfo.status === 'REJECT'}
           className="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl text-base flex items-center justify-center gap-2 disabled:opacity-60">
           {submitting
             ? <><Loader className="w-5 h-5 animate-spin" /> Memproses...</>
