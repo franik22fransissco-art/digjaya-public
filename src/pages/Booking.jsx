@@ -22,12 +22,12 @@ const DOKUMEN_LIST = [
   { key: 'sosmed', label: 'Screenshot Media Sosial', required: true },
 ];
 
-const inputCls = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400 bg-white';
+const inputCls = 'w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 bg-white text-gray-800 placeholder-gray-400 transition-all';
 
 function Field({ label, children, hint, required }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-gray-600 mb-1">
+      <label className="block text-xs font-bold text-gray-700 mb-1.5">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
@@ -240,24 +240,24 @@ export default function Booking() {
   // ── STEP 3: Sukses ──────────────────────────────────────────────────────────
   if (step === 3) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 text-center">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
-          <CheckCircle className="w-10 h-10 text-green-500" />
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 text-center pb-20">
+        <div className="w-20 h-20 bg-emerald-50 border-2 border-emerald-100 rounded-full flex items-center justify-center mb-5">
+          <CheckCircle className="w-10 h-10 text-emerald-500" />
         </div>
-        <h1 className="text-xl font-bold text-gray-800 mb-2">Pesanan Terkirim!</h1>
+        <h1 className="text-xl font-black text-gray-900 mb-2">Pesanan Terkirim!</h1>
         <p className="text-sm text-gray-500 mb-1">
-          Tim DIGJAYA akan menghubungi <strong>{form.noWA}</strong> dalam 15 menit.
+          Tim DIGJAYA akan menghubungi <strong className="text-gray-700">{form.noWA}</strong> dalam 15 menit.
         </p>
         <p className="text-xs text-gray-400 mb-8">Simpan nomor WA untuk cek status pesanan.</p>
         <div className="flex flex-col gap-3 w-full max-w-xs">
           <button
             onClick={() => navigate(`/cek-status?wa=${encodeURIComponent(form.noWA)}`)}
-            className="w-full bg-orange-500 text-white font-bold py-3 rounded-xl"
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-3.5 rounded-2xl shadow-sm shadow-orange-500/25"
           >
             Cek Status Pesanan
           </button>
           <button onClick={() => navigate('/')}
-            className="w-full border border-gray-300 text-gray-600 font-semibold py-3 rounded-xl">
+            className="w-full border border-gray-200 text-gray-600 font-semibold py-3.5 rounded-2xl bg-white">
             Kembali ke Beranda
           </button>
         </div>
@@ -269,12 +269,17 @@ export default function Booking() {
   if (step === 2) {
     return (
       <div className="min-h-screen bg-gray-50 pb-10">
-        <div className="bg-orange-500 text-white px-4 pt-10 pb-5">
+        <div className="bg-gray-900 px-4 pt-10 pb-5 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <button onClick={() => setStep(1)}><ArrowLeft className="w-5 h-5" /></button>
+            <button
+              onClick={() => setStep(1)}
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/8 text-white active:scale-95 transition"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <div>
-              <p className="text-xs opacity-75">Langkah 2 dari 2</p>
-              <h1 className="font-bold text-lg">Verifikasi Identitas</h1>
+              <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest">Langkah 2 dari 2</p>
+              <h1 className="font-black text-white text-lg mt-0.5">Verifikasi Identitas</h1>
             </div>
           </div>
         </div>
@@ -315,7 +320,7 @@ export default function Booking() {
           <button
             onClick={handleStep2}
             disabled={submitting}
-            className="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-2xl text-sm flex items-center justify-center gap-2 disabled:opacity-60 shadow-sm shadow-orange-500/25"
           >
             {submitting
               ? <><Loader className="w-5 h-5 animate-spin" /> Mengirim...</>
@@ -329,20 +334,26 @@ export default function Booking() {
   // ── STEP 1: Form Pemesanan ──────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
-      <div className="bg-orange-500 text-white px-4 pt-10 pb-5">
+      <div className="bg-gray-900 px-4 pt-10 pb-5 border-b border-white/5">
         <div className="flex items-center gap-3 mb-1">
-          <button onClick={() => navigate(-1)}><ArrowLeft className="w-5 h-5" /></button>
-          <div className="flex items-center gap-2">
-            <img src="/logo.jpg" alt="DIGJAYA" className="h-6 w-6 object-contain rounded" />
-            <div>
-              <p className="text-xs opacity-75">DIGJAYA RENTAL</p>
-              <h1 className="font-bold text-lg">Form Pemesanan</h1>
+          <button
+            onClick={() => navigate(-1)}
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/8 text-white active:scale-95 transition"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.jpg" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
+            <div className="leading-none">
+              <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest">DIGJAYA RENTAL</p>
+              <h1 className="font-black text-white text-lg mt-0.5">Form Pemesanan</h1>
             </div>
           </div>
         </div>
         {unitNama && (
-          <div className="mt-2 bg-white/20 rounded-xl px-3 py-2 flex items-center gap-2">
-            <Car className="w-4 h-4" /><p className="text-sm font-semibold">{unitNama}</p>
+          <div className="mt-3 bg-white/8 border border-white/10 rounded-xl px-3 py-2.5 flex items-center gap-2">
+            <Car className="w-4 h-4 text-orange-400" />
+            <p className="text-sm font-bold text-white">{unitNama}</p>
           </div>
         )}
       </div>
@@ -350,8 +361,11 @@ export default function Booking() {
       <form onSubmit={(e) => { e.preventDefault(); handleStep1(); }} className="px-4 pt-5 space-y-4">
 
         {/* Data Pemesan */}
-        <div className="bg-white rounded-2xl p-4 space-y-4 shadow-sm">
-          <p className="font-bold text-gray-700 text-sm border-b pb-2">Data Pemesan</p>
+        <div className="bg-white rounded-2xl p-4 space-y-4 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-2 pb-3 border-b border-gray-50">
+            <div className="w-1 h-4 bg-orange-500 rounded-full" />
+            <p className="font-black text-gray-800 text-sm">Data Pemesan</p>
+          </div>
 
           <Field label="Nama Lengkap" required>
             <input className={inputCls} placeholder="Nama sesuai KTP"
@@ -406,8 +420,11 @@ export default function Booking() {
         </div>
 
         {/* Detail Sewa */}
-        <div className="bg-white rounded-2xl p-4 space-y-4 shadow-sm">
-          <p className="font-bold text-gray-700 text-sm border-b pb-2">Detail Sewa</p>
+        <div className="bg-white rounded-2xl p-4 space-y-4 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-2 pb-3 border-b border-gray-50">
+            <div className="w-1 h-4 bg-orange-500 rounded-full" />
+            <p className="font-black text-gray-800 text-sm">Detail Sewa</p>
+          </div>
 
           {!params.get('unitId') && (
             <Field label="Pilih Unit" required>
@@ -510,7 +527,7 @@ export default function Booking() {
         )}
 
         <button type="submit" disabled={submitting || riskInfo.status === 'REJECT'}
-          className="w-full bg-orange-500 text-white font-bold py-4 rounded-2xl text-base flex items-center justify-center gap-2 disabled:opacity-60">
+          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-2xl text-base flex items-center justify-center gap-2 disabled:opacity-60 shadow-sm shadow-orange-500/25">
           {submitting
             ? <><Loader className="w-5 h-5 animate-spin" /> Memproses...</>
             : pelanggan?.id

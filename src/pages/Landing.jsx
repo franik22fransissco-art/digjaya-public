@@ -1,25 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Car, CheckCircle, Phone, Clock, Star, ChevronRight, Bike } from 'lucide-react';
+import { Car, ChevronRight, Bike, Shield, Zap, Award } from 'lucide-react';
 import { getUnits, getUnitPhotos } from '../utils/api';
 
-// Foto fallback jika unit.foto_url kosong dan belum ada foto custom dari admin
 const FALLBACK_MOTOR = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80';
 const FALLBACK_MOBIL = 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80';
 
 function getDefaultPhoto(unit) {
-  // Prioritas 1: foto_url yang disimpan di DB (per unit)
   if (unit.foto_url) return unit.foto_url;
-  // Prioritas 2: fallback generik berdasarkan tipe
   return unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
 }
 
 const STATUS_LABEL = {
-  READY:   { label: 'Tersedia',  cls: 'bg-orange-100 text-orange-600' },
-  BOOKING: { label: 'Dibooking', cls: 'bg-yellow-100 text-yellow-700' },
-  JALAN:   { label: 'Disewa',   cls: 'bg-blue-100 text-blue-600' },
-  SERVIS:  { label: 'Servis',   cls: 'bg-red-100 text-red-500' },
+  READY:   { label: 'Tersedia', cls: 'bg-emerald-500 text-white' },
+  BOOKING: { label: 'Dipesan',  cls: 'bg-amber-400 text-white'   },
+  JALAN:   { label: 'Disewa',   cls: 'bg-sky-500 text-white'     },
+  SERVIS:  { label: 'Servis',   cls: 'bg-rose-500 text-white'    },
 };
+
+function fmtRp(n) {
+  if (!n) return null;
+  if (n >= 1000000) return `${(n / 1000000).toLocaleString('id-ID')}jt`;
+  return `${Math.round(n / 1000)}rb`;
+}
 
 function UnitCard({ unit, onClick }) {
   const [photo, setPhoto] = useState(getDefaultPhoto(unit));
@@ -33,21 +36,24 @@ function UnitCard({ unit, onClick }) {
 
   function handleImgError() {
     const fallback = unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
-    if (photo !== fallback) {
-      setPhoto(fallback);
-    } else {
-      setImgErr(true);
-    }
+    if (photo !== fallback) setPhoto(fallback);
+    else setImgErr(true);
   }
+
+  const harga12  = fmtRp(unit.harga_12jam);
+  const hargaDay = unit.tipe === 'Motor' ? fmtRp(unit.harga_per_hari) : fmtRp(unit.harga_24jam);
+  const dayLabel = unit.tipe === 'Motor' ? '1 hari' : '24 jam';
 
   return (
     <div
       onClick={() => available && onClick(unit)}
-      className={`bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition active:scale-95 ${
-        available ? 'cursor-pointer hover:shadow-md hover:border-orange-200' : 'opacity-60 cursor-not-allowed'
+      className={`rounded-2xl overflow-hidden bg-white shadow-sm border transition-all duration-200 ${
+        available
+          ? 'border-gray-100 cursor-pointer active:scale-[0.97] hover:shadow-md hover:border-orange-200'
+          : 'border-gray-100 opacity-55 cursor-not-allowed'
       }`}
     >
-      <div className="relative h-36 bg-gray-100">
+      <div className="relative h-40 bg-gray-100 overflow-hidden">
         {photo && !imgErr ? (
           <img
             src={photo} alt={unit.nama}
@@ -55,47 +61,51 @@ function UnitCard({ unit, onClick }) {
             onError={handleImgError}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
             {unit.tipe === 'Motor'
               ? <Bike className="w-12 h-12 text-gray-300" />
               : <Car  className="w-12 h-12 text-gray-300" />
             }
           </div>
         )}
-        <span className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${st.cls}`}>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <span className={`absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${st.cls}`}>
           {st.label}
         </span>
+        <div className="absolute bottom-0 inset-x-0 px-3 pb-2.5 pt-6">
+          <p className="text-white font-bold text-sm truncate leading-snug">{unit.nama}</p>
+          <p className="text-white/55 text-[10px] font-medium">{unit.tipe}</p>
+        </div>
       </div>
+
       <div className="p-3">
-        <p className="font-bold text-gray-800 text-sm truncate">{unit.nama}</p>
-        <p className="text-xs text-gray-400">{unit.tipe}</p>
-        {(unit.harga_12jam || unit.harga_per_hari) && (
-          <p className="text-xs text-orange-500 font-semibold mt-0.5">
-            {unit.tipe === 'Motor'
-              ? `Rp ${fmtRp(unit.harga_12jam)} / ${fmtRp(unit.harga_per_hari)}`
-              : `Rp ${fmtRp(unit.harga_12jam)} / ${fmtRp(unit.harga_24jam)}`}
-          </p>
+        {harga12 && (
+          <div className="flex items-baseline justify-between mb-2.5">
+            <div>
+              <p className="text-[10px] text-gray-400 leading-none">mulai dari</p>
+              <p className="text-sm font-black text-orange-500 mt-0.5">
+                Rp {harga12}<span className="text-[10px] font-medium text-gray-400"> /12jam</span>
+              </p>
+            </div>
+            {hargaDay && (
+              <p className="text-xs font-bold text-gray-500">
+                Rp {hargaDay}<span className="text-[10px] font-normal text-gray-400">/{dayLabel}</span>
+              </p>
+            )}
+          </div>
         )}
-        <div className="mt-2" />
-        {available && (
-          <button className="w-full py-1.5 rounded-xl bg-orange-500 text-white text-xs font-bold">
-            Pesan Unit Ini
+        {available ? (
+          <button className="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold tracking-wide shadow-sm shadow-orange-500/25">
+            Pesan Sekarang
           </button>
-        )}
-        {!available && (
-          <div className="w-full py-1.5 rounded-xl bg-gray-100 text-gray-400 text-xs font-medium text-center">
-            Tidak tersedia
+        ) : (
+          <div className="w-full py-2.5 rounded-xl bg-gray-50 text-gray-400 text-xs font-semibold text-center border border-gray-100">
+            Tidak Tersedia
           </div>
         )}
       </div>
     </div>
   );
-}
-
-function fmtRp(n) {
-  if (!n) return null;
-  if (n >= 1000000) return `${(n / 1000000).toLocaleString('id-ID')}jt`;
-  return `${Math.round(n / 1000)}rb`;
 }
 
 export default function Landing() {
@@ -122,66 +132,102 @@ export default function Landing() {
     navigate(`/booking?unitId=${unit.id}&unitNama=${encodeURIComponent(unit.nama)}&tipe=${unit.tipe}`);
   }
 
+  const readyCount = units.filter((u) => u.status === 'READY').length;
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50 pb-20">
 
       {/* Header */}
-      <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img src="/logo.jpg" alt="DIGJAYA" className="h-7 w-7 object-contain rounded" />
-          <p className="font-bold text-white tracking-wide text-sm">DIGJAYA RENTAL</p>
+      <div className="sticky top-0 z-30 bg-gray-900 border-b border-white/5 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.jpg" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
+          <div className="leading-none">
+            <p className="text-white font-black text-sm tracking-wide">DIGJAYA</p>
+            <p className="text-orange-400 text-[10px] font-bold tracking-[0.2em] mt-0.5">RENTAL</p>
+          </div>
         </div>
         <button
           onClick={() => navigate('/cek-status')}
-          className="text-xs text-orange-400 font-semibold border border-orange-400/40 px-3 py-1.5 rounded-xl"
+          className="text-xs text-orange-400 font-semibold bg-orange-500/10 border border-orange-500/20 px-3.5 py-1.5 rounded-xl active:scale-95 transition"
         >
           Cek Pesanan
         </button>
       </div>
 
       {/* Hero */}
-      <div className="bg-gray-800 px-5 pt-8 pb-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-orange-500/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+      <div className="bg-gray-900 relative overflow-hidden px-5 pt-10 pb-12">
+        <div className="absolute -top-10 right-0 w-72 h-72 bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 -left-10 w-56 h-56 bg-orange-600/8 rounded-full blur-3xl pointer-events-none" />
+
         <div className="relative">
-          <span className="inline-block bg-orange-500/20 text-orange-400 text-[10px] font-bold px-3 py-1 rounded-full mb-3 tracking-wider">
-            RENTAL KENDARAAN
-          </span>
-          <h1 className="text-2xl font-extrabold text-white leading-tight mb-2">
+          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 mb-5">
+            <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
+            <span className="text-orange-400/90 text-[10px] font-bold tracking-[0.15em] uppercase">Rental Kendaraan Subang</span>
+          </div>
+
+          <h1 className="text-[2rem] font-black text-white leading-[1.15] mb-3">
             Sewa Kendaraan<br />
-            <span className="text-orange-400">Praktis & Terpercaya</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+              Praktis & Terpercaya
+            </span>
           </h1>
-          <p className="text-sm text-gray-400 mb-6">
-            Motor dan mobil siap antar ke lokasi Anda
+          <p className="text-gray-400 text-sm mb-7 leading-relaxed">
+            Motor & mobil siap diantar ke lokasi Anda.<br />Proses cepat, harga transparan.
           </p>
+
+          <div className="grid grid-cols-3 gap-2.5 mb-7">
+            {[
+              { num: '16+',  label: 'Armada'  },
+              { num: '5★',   label: 'Rating'  },
+              { num: '24/7', label: 'Layanan' },
+            ].map(({ num, label }) => (
+              <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3.5 text-center">
+                <p className="text-orange-400 font-black text-xl leading-none">{num}</p>
+                <p className="text-gray-500 text-[10px] font-medium mt-1.5">{label}</p>
+              </div>
+            ))}
+          </div>
+
           <button
             onClick={() => document.getElementById('katalog').scrollIntoView({ behavior: 'smooth' })}
-            className="w-full bg-orange-500 text-white font-bold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-orange-500/20"
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-2xl text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xl shadow-orange-600/25"
           >
             Lihat Armada <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Keunggulan */}
-      <div className="mx-4 mt-3 bg-white rounded-2xl shadow-sm border border-gray-100 grid grid-cols-3 divide-x divide-gray-100">
-        {[
-          { icon: CheckCircle, label: 'Unit Terawat', color: 'text-orange-500' },
-          { icon: Phone,       label: 'Respon Cepat', color: 'text-orange-500' },
-          { icon: Clock,       label: 'Siap 24 Jam',  color: 'text-orange-500' },
-        ].map(({ icon: Icon, label, color }) => (
-          <div key={label} className="flex flex-col items-center gap-1.5 py-3 px-2">
-            <Icon className={`w-5 h-5 ${color}`} />
-            <p className="text-[10px] font-semibold text-gray-500 text-center leading-tight">{label}</p>
+      {/* Feature bar */}
+      <div className="px-4 mt-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="grid grid-cols-3 divide-x divide-gray-100">
+            {[
+              { icon: Shield, label: 'Unit Terawat', desc: 'Servis rutin' },
+              { icon: Zap,    label: 'Respon Cepat', desc: '< 15 menit'  },
+              { icon: Award,  label: 'Terpercaya',   desc: '5+ tahun'     },
+            ].map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="flex flex-col items-center gap-1.5 py-4 px-2">
+                <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-orange-500" />
+                </div>
+                <p className="text-[11px] font-bold text-gray-800 text-center leading-tight">{label}</p>
+                <p className="text-[10px] text-gray-400 text-center">{desc}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
       {/* Katalog */}
-      <div id="katalog" className="px-4 pt-6 pb-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-gray-800 text-base">Armada Kami</h2>
-          <div className="flex bg-white border border-gray-200 rounded-xl p-0.5 gap-0.5">
+      <div id="katalog" className="px-4 pt-6 pb-2">
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <h2 className="font-black text-gray-900 text-lg leading-tight">Armada Kami</h2>
+            {!loading && (
+              <p className="text-xs text-gray-400 mt-0.5">{readyCount} unit siap disewa</p>
+            )}
+          </div>
+          <div className="flex bg-gray-100 rounded-xl p-1 gap-0.5">
             {[
               { key: 'semua', label: 'Semua' },
               { key: 'motor', label: 'Motor' },
@@ -190,10 +236,8 @@ export default function Landing() {
               <button
                 key={f.key}
                 onClick={() => { setFilter(f.key); setShowAll(false); }}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                  filter === f.key
-                    ? 'bg-orange-500 text-white'
-                    : 'text-gray-400'
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                  filter === f.key ? 'bg-white text-orange-500 shadow-sm' : 'text-gray-400'
                 }`}
               >
                 {f.label}
@@ -205,11 +249,14 @@ export default function Landing() {
         {loading ? (
           <div className="grid grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-2xl h-52 animate-pulse" />
+              <div key={i} className="rounded-2xl bg-white h-60 animate-pulse border border-gray-100" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-gray-400 py-10 text-sm">Tidak ada unit tersedia</p>
+          <div className="py-14 text-center">
+            <p className="text-4xl mb-3">🚗</p>
+            <p className="text-gray-400 text-sm font-medium">Tidak ada unit tersedia</p>
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3">
@@ -220,9 +267,9 @@ export default function Landing() {
             {!showAll && filtered.length > 6 && (
               <button
                 onClick={() => setShowAll(true)}
-                className="w-full mt-3 py-2.5 rounded-xl border-2 border-orange-300 text-orange-600 text-sm font-semibold flex items-center justify-center gap-1 active:scale-95 transition"
+                className="w-full mt-4 py-3 rounded-xl border-2 border-orange-200 text-orange-500 text-sm font-bold active:scale-[0.98] transition"
               >
-                Lihat Selengkapnya ({filtered.length - 6} unit lagi) <ChevronRight className="w-4 h-4" />
+                Lihat {filtered.length - 6} Unit Lainnya ↓
               </button>
             )}
           </>
@@ -230,35 +277,40 @@ export default function Landing() {
       </div>
 
       {/* Cara Pesan */}
-      <div className="mx-4 mb-4 bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm">
-          <Star className="w-4 h-4 text-orange-500 fill-orange-500" /> Cara Pesan
-        </h2>
-        {[
-          { step: '1', title: 'Pilih Unit',        desc: 'Pilih kendaraan yang tersedia dari katalog' },
-          { step: '2', title: 'Isi Form',           desc: 'Masukkan nama, WhatsApp, tanggal, dan durasi sewa' },
-          { step: '3', title: 'Tunggu Konfirmasi',  desc: 'Tim kami hubungi via WhatsApp dalam 15 menit' },
-        ].map((s, i) => (
-          <div key={s.step} className={`flex gap-3 ${i < 2 ? 'mb-3' : ''}`}>
-            <div className="w-6 h-6 rounded-full bg-orange-500 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-              {s.step}
-            </div>
-            <div>
-              <p className="font-semibold text-gray-800 text-sm">{s.title}</p>
-              <p className="text-xs text-gray-400">{s.desc}</p>
-            </div>
+      <div className="px-4 pt-6 pb-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-1 h-5 bg-orange-500 rounded-full" />
+            <h2 className="font-black text-gray-900 text-base">Cara Pesan</h2>
           </div>
-        ))}
+          <div className="relative pl-8">
+            <div className="absolute left-3 top-3 bottom-3 w-px bg-gradient-to-b from-orange-400 to-orange-100" />
+            {[
+              { num: '1', title: 'Pilih Kendaraan',        desc: 'Pilih unit yang tersedia dari katalog kami' },
+              { num: '2', title: 'Isi Form Pemesanan',      desc: 'Nama, nomor WA, tanggal & durasi sewa' },
+              { num: '3', title: 'Konfirmasi via WhatsApp', desc: 'Tim kami menghubungi dalam 15 menit' },
+            ].map((s, i) => (
+              <div key={s.num} className={`relative ${i < 2 ? 'mb-6' : ''}`}>
+                <div className="absolute -left-8 w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm shadow-orange-400/40">
+                  <span className="text-white font-black text-[11px]">{s.num}</span>
+                </div>
+                <p className="font-bold text-gray-800 text-sm">{s.title}</p>
+                <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* CTA */}
-      <div className="px-4 pb-20">
+      {/* Bottom CTA */}
+      <div className="px-4 pb-4">
         <button
           onClick={() => navigate('/booking')}
-          className="w-full bg-gray-800 text-white font-bold py-4 rounded-2xl text-sm flex items-center justify-center gap-2 active:scale-95 transition border-2 border-orange-500"
+          className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition border border-white/5 relative overflow-hidden"
         >
-          <span className="text-orange-400">Pesan Sekarang</span>
-          <ChevronRight className="w-4 h-4 text-orange-400" />
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/15 to-transparent pointer-events-none" />
+          <span className="relative font-black text-orange-400">Pesan Sekarang</span>
+          <ChevronRight className="w-4 h-4 text-orange-400 relative" />
         </button>
       </div>
     </div>

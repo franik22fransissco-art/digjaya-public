@@ -52,21 +52,27 @@ const SECTIONS = [
 function Accordion({ title, items }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+    <div className={`bg-white rounded-2xl overflow-hidden border transition-all ${
+      open ? 'border-orange-200 shadow-sm shadow-orange-100' : 'border-gray-100 shadow-sm'
+    }`}>
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-4 text-left"
       >
-        <span className="font-bold text-gray-800 text-sm">{title}</span>
+        <span className={`font-bold text-sm transition-colors ${open ? 'text-orange-600' : 'text-gray-800'}`}>
+          {title}
+        </span>
         {open
-          ? <ChevronUp className="w-4 h-4 text-orange-500 shrink-0" />
-          : <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />}
+          ? <ChevronUp   className="w-4 h-4 text-orange-500 shrink-0" />
+          : <ChevronDown className="w-4 h-4 text-gray-300 shrink-0" />}
       </button>
       {open && (
-        <div className="px-4 pb-4 space-y-2 border-t border-gray-50">
+        <div className="px-4 pb-4 space-y-0 border-t border-orange-50">
           {items.map((item, i) => (
-            <div key={i} className="flex gap-2 pt-2">
-              <span className="text-orange-400 font-bold text-xs mt-0.5 shrink-0">{i + 1}.</span>
+            <div key={i} className="flex gap-3 pt-3">
+              <span className="w-5 h-5 rounded-full bg-orange-50 text-orange-500 font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                {i + 1}
+              </span>
               <p className="text-sm text-gray-600 leading-relaxed">{item}</p>
             </div>
           ))}
@@ -81,38 +87,44 @@ export default function SK() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
-      <div className="bg-orange-500 text-white px-4 pt-10 pb-6">
+      <div className="bg-gray-900 px-4 pt-10 pb-6 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-1">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/8 text-white active:scale-95 transition"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <img src="/logo.jpg" alt="DIGJAYA" className="h-6 w-6 object-contain rounded" />
-            <div>
-              <p className="text-xs opacity-75">DIGJAYA RENTAL</p>
-              <h1 className="font-bold text-lg">Syarat & Ketentuan</h1>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.jpg" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
+            <div className="leading-none">
+              <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest">DIGJAYA RENTAL</p>
+              <h1 className="font-black text-white text-lg mt-0.5">Syarat & Ketentuan</h1>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="px-4 pt-5 space-y-3">
-        <p className="text-xs text-gray-500 text-center pb-1">
-          Dengan melakukan pemesanan, Anda dianggap telah membaca dan menyetujui seluruh syarat & ketentuan berikut.
-        </p>
+      <div className="px-4 pt-4 space-y-3">
+        <div className="bg-orange-50 border border-orange-100 rounded-2xl px-4 py-3 text-center">
+          <p className="text-xs text-orange-600 leading-relaxed">
+            Dengan melakukan pemesanan, Anda dianggap telah membaca dan menyetujui seluruh syarat & ketentuan berikut.
+          </p>
+        </div>
+
         {SECTIONS.map((s) => (
           <Accordion key={s.title} title={s.title} items={s.items} />
         ))}
 
         {/* Kontak */}
-        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 text-center space-y-2">
-          <p className="text-sm font-bold text-orange-700">Ada pertanyaan?</p>
-          <p className="text-xs text-orange-600">Hubungi kami langsung via WhatsApp</p>
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm">
+          <p className="text-sm font-black text-gray-800 mb-1">Ada pertanyaan?</p>
+          <p className="text-xs text-gray-400 mb-4">Hubungi kami langsung via WhatsApp</p>
           <a
             href="https://wa.me/6285862177805"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block mt-1 bg-green-500 text-white text-sm font-bold px-6 py-2 rounded-xl"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold px-7 py-3 rounded-2xl shadow-sm shadow-emerald-500/25 active:scale-95 transition"
           >
             Chat WhatsApp
           </a>

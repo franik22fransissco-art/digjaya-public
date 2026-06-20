@@ -77,18 +77,21 @@ export default function CekStatus() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="bg-orange-500 text-white px-4 pt-10 pb-6">
+      <div className="bg-gray-900 px-4 pt-10 pb-6 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-1">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/8 text-white active:scale-95 transition"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <img src="/logo.jpg" alt="DIGJAYA" className="h-6 w-6 object-contain rounded" />
-            <div>
-              <p className="text-xs opacity-75">DIGJAYA RENTAL</p>
-              <h1 className="font-bold text-lg">Cek Status Pesanan</h1>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.jpg" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
+            <div className="leading-none">
+              <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest">DIGJAYA RENTAL</p>
+              <h1 className="font-black text-white text-lg mt-0.5">Cek Status Pesanan</h1>
             </div>
           </div>
         </div>
@@ -96,11 +99,11 @@ export default function CekStatus() {
 
       <div className="px-4 pt-5 space-y-4">
         {/* Form cari */}
-        <form onSubmit={handleCari} className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-          <p className="text-sm text-gray-600">Masukkan nomor WhatsApp yang digunakan saat memesan:</p>
+        <form onSubmit={handleCari} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-3">
+          <p className="text-sm text-gray-600 font-medium">Masukkan nomor WhatsApp yang digunakan saat memesan:</p>
           <input
             type="tel"
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-gray-800 placeholder-gray-400 transition-all"
             placeholder="08xxxxxxxxxx"
             value={noWA}
             onChange={(e) => { setNoWA(e.target.value); setError(''); }}
@@ -109,7 +112,7 @@ export default function CekStatus() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-orange-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition disabled:opacity-60"
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition disabled:opacity-60 shadow-sm shadow-orange-500/20"
           >
             {loading
               ? <><Loader className="w-4 h-4 animate-spin" /> Mencari...</>
@@ -262,7 +265,7 @@ export default function CekStatus() {
         {searched && (
           <button
             onClick={() => navigate('/booking')}
-            className="w-full border-2 border-orange-300 text-orange-600 font-bold py-3 rounded-xl text-sm active:scale-95 transition"
+            className="w-full border-2 border-orange-200 text-orange-500 font-bold py-3.5 rounded-xl text-sm active:scale-[0.98] transition"
           >
             + Buat Pesanan Baru
           </button>
