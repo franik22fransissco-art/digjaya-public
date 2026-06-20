@@ -175,19 +175,6 @@ export default function Landing() {
             Motor & mobil siap diantar ke lokasi Anda.<br />Proses cepat, harga transparan.
           </p>
 
-          <div className="grid grid-cols-3 gap-2.5 mb-7">
-            {[
-              { num: '16+',  label: 'Armada'  },
-              { num: '5★',   label: 'Rating'  },
-              { num: '24/7', label: 'Layanan' },
-            ].map(({ num, label }) => (
-              <div key={label} className="bg-white/5 border border-white/8 rounded-2xl py-3.5 text-center">
-                <p className="text-orange-400 font-black text-xl leading-none">{num}</p>
-                <p className="text-gray-500 text-[10px] font-medium mt-1.5">{label}</p>
-              </div>
-            ))}
-          </div>
-
           <button
             onClick={() => document.getElementById('katalog').scrollIntoView({ behavior: 'smooth' })}
             className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-2xl text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-xl shadow-orange-600/25"
