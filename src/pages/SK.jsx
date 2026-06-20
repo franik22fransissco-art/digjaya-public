@@ -23,7 +23,7 @@ const SECTIONS = [
       'Perpanjangan waktu sewa wajib dikonfirmasi minimal 6 jam sebelum waktu kembali',
       'Kendaraan dikembalikan tepat waktu sesuai kesepakatan',
       'Kendaraan dikembalikan dalam kondisi bersih dan BBM sesuai saat pengambilan',
-      'Keterlambatan pengembalian dikenakan biaya tambahan per jam',
+      'Keterlambatan pengembalian dikenakan biaya tambahan 10% per jam dari harga sewa',
     ],
   },
   {
