@@ -378,11 +378,6 @@ export default function Booking() {
             <p className="font-black text-gray-800 text-sm">Data Pemesan</p>
           </div>
 
-          <Field label="Nama Lengkap" required>
-            <input className={inputCls} placeholder="Nama sesuai KTP"
-              value={form.nama} onChange={(e) => set('nama', e.target.value)} />
-          </Field>
-
           <Field label="Nomor WhatsApp" required hint="Format: 08xxxxxxxxxx">
             <div className="relative">
               <input className={inputCls} type="tel" placeholder="08xxxxxxxxxx"
@@ -427,6 +422,11 @@ export default function Booking() {
                 </p>
               </div>
             )}
+          </Field>
+
+          <Field label="Nama Lengkap" required>
+            <input className={inputCls} placeholder="Nama sesuai KTP"
+              value={form.nama} onChange={(e) => set('nama', e.target.value)} />
           </Field>
         </div>
 
