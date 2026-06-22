@@ -117,15 +117,37 @@ export async function submitBooking({
   return { success: true };
 }
 
+// ─── Normalisasi nomor WA ke semua format yang mungkin tersimpan ─────────────
+
+function waFormats(noWA) {
+  const digits = noWA.replace(/\D/g, '');
+  const fmt62  = digits.startsWith('62') ? digits : '62' + digits.replace(/^0+/, '');
+  const fmt0   = '0' + fmt62.slice(2);
+  const fmtPlus = '+' + fmt62;
+  return { fmt0, fmt62, fmtPlus, raw: noWA };
+}
+
 // ─── Cek Status Pesanan ───────────────────────────────────────────────────────
 
 export async function getStatusByWA(noWA) {
-  const clean = noWA.replace(/\D/g, '').replace(/^0/, '62');
+  const { fmt0, fmt62, fmtPlus, raw } = waFormats(noWA);
   const { data, error } = await supabase
     .from('booking_request')
     .select('*, unit:unit_id(nama, tipe)')
-    .or(`no_wa_pemesan.eq.${noWA},no_wa_pemesan.eq.${clean}`)
+    .or(`no_wa_pemesan.eq.${fmt0},no_wa_pemesan.eq.${fmt62},no_wa_pemesan.eq.${fmtPlus},no_wa_pemesan.eq.${raw}`)
     .order('created_at', { ascending: false });
   if (error) return { success: false, data: [] };
   return { success: true, data: data || [] };
+}
+
+export async function cancelBookingRequest(id, noWA) {
+  const { fmt0, fmt62, fmtPlus, raw } = waFormats(noWA);
+  const { error } = await supabase
+    .from('booking_request')
+    .update({ status: 'CANCEL' })
+    .eq('id', id)
+    .eq('status', 'PENDING')
+    .or(`no_wa_pemesan.eq.${fmt0},no_wa_pemesan.eq.${fmt62},no_wa_pemesan.eq.${fmtPlus},no_wa_pemesan.eq.${raw}`);
+  if (error) return { success: false, message: error.message };
+  return { success: true };
 }

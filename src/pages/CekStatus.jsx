@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Search, Clock, CheckCircle, XCircle, Loader, Copy, Check } from 'lucide-react';
-import { getStatusByWA } from '../utils/api';
+import { ArrowLeft, Search, Clock, CheckCircle, XCircle, Loader, Copy, Check, AlertTriangle } from 'lucide-react';
+import { getStatusByWA, cancelBookingRequest } from '../utils/api';
 
 const STATUS_CONFIG = {
-  PENDING:  { label: 'Menunggu Konfirmasi', icon: Clock,         cls: 'bg-yellow-50 text-yellow-700 border-yellow-200', iconCls: 'text-yellow-500' },
-  APPROVED: { label: 'Disetujui!',          icon: CheckCircle,   cls: 'bg-green-50  text-green-700  border-green-200',  iconCls: 'text-green-500'  },
-  REJECTED: { label: 'Tidak Disetujui',     icon: XCircle,       cls: 'bg-red-50    text-red-700    border-red-200',    iconCls: 'text-red-500'    },
+  PENDING:  { label: 'Menunggu Konfirmasi', icon: Clock,          cls: 'bg-yellow-50 text-yellow-700 border-yellow-200', iconCls: 'text-yellow-500' },
+  APPROVED: { label: 'Disetujui!',          icon: CheckCircle,    cls: 'bg-green-50  text-green-700  border-green-200',  iconCls: 'text-green-500'  },
+  REJECTED: { label: 'Tidak Disetujui',     icon: XCircle,        cls: 'bg-red-50    text-red-700    border-red-200',    iconCls: 'text-red-500'    },
+  CANCEL:   { label: 'Dibatalkan',          icon: AlertTriangle,  cls: 'bg-gray-50   text-gray-500   border-gray-200',   iconCls: 'text-gray-400'   },
 };
 
 const REKENING = [
@@ -52,15 +53,29 @@ function CopyBtn({ text }) {
 export default function CekStatus() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const [noWA, setNoWA]         = useState(params.get('wa') || '');
-  const [results, setResults]   = useState([]);
-  const [loading, setLoading]   = useState(false);
-  const [searched, setSearched] = useState(false);
-  const [error, setError]       = useState('');
+  const [noWA, setNoWA]           = useState(params.get('wa') || '');
+  const [results, setResults]     = useState([]);
+  const [loading, setLoading]     = useState(false);
+  const [searched, setSearched]   = useState(false);
+  const [error, setError]         = useState('');
+  const [cancelId, setCancelId]   = useState(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (params.get('wa')) handleCari();
   }, []); // eslint-disable-line
+
+  async function handleCancel(id) {
+    setCancelling(true);
+    const res = await cancelBookingRequest(id, noWA);
+    setCancelling(false);
+    setCancelId(null);
+    if (res.success) {
+      setResults((prev) => prev.map((r) => r.id === id ? { ...r, status: 'CANCEL' } : r));
+    } else {
+      setError('Gagal membatalkan pesanan. Coba lagi.');
+    }
+  }
 
   async function handleCari(e) {
     e?.preventDefault();
@@ -239,10 +254,40 @@ export default function CekStatus() {
                   </div>
                 )}
                 {r.status === 'PENDING' && (
-                  <div className="bg-yellow-50 rounded-xl p-3 text-center">
-                    <p className="text-xs text-yellow-700">
-                      Sedang diproses. Estimasi konfirmasi: <strong>15 menit</strong>
-                    </p>
+                  <div className="space-y-2">
+                    <div className="bg-yellow-50 rounded-xl p-3 text-center">
+                      <p className="text-xs text-yellow-700">
+                        Sedang diproses. Estimasi konfirmasi: <strong>15 menit</strong>
+                      </p>
+                    </div>
+                    {cancelId === r.id ? (
+                      <div className="bg-red-50 border border-red-200 rounded-xl p-3 space-y-2">
+                        <p className="text-xs text-red-700 font-semibold text-center">Yakin ingin membatalkan pesanan ini?</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setCancelId(null)}
+                            className="flex-1 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold"
+                          >
+                            Tidak
+                          </button>
+                          <button
+                            onClick={() => handleCancel(r.id)}
+                            disabled={cancelling}
+                            className="flex-1 py-2 rounded-xl bg-red-500 text-white text-xs font-bold disabled:opacity-60 flex items-center justify-center gap-1"
+                          >
+                            {cancelling ? <Loader className="w-3 h-3 animate-spin" /> : null}
+                            Ya, Batalkan
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setCancelId(r.id)}
+                        className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 text-xs font-semibold active:scale-[0.98] transition"
+                      >
+                        Batalkan Pesanan
+                      </button>
+                    )}
                   </div>
                 )}
                 {r.status === 'REJECTED' && (
