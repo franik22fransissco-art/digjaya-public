@@ -130,6 +130,10 @@ export default function Booking() {
     setRiskInfo(risk);
     setCheckingWA(false);
     setWaChecked(true);
+    // Auto-fill nama jika pelanggan lama dan field nama masih kosong
+    if (result?.nama && !form.nama.trim()) {
+      setForm((f) => ({ ...f, nama: result.nama }));
+    }
     // Reset metode jika customer baru dan sudah pilih Ambil Sendiri
     if (!result && form.metode === 'Ambil Sendiri') set('metode', 'Antar ke Lokasi');
   }
@@ -180,6 +184,9 @@ export default function Booking() {
       setPelanggan(resolved);
       setRiskInfo(risk);
       setCheckingWA(false);
+      if (resolved?.nama && !form.nama.trim()) {
+        setForm((f) => ({ ...f, nama: resolved.nama }));
+      }
     }
 
     if (risk.status === 'REJECT') {
