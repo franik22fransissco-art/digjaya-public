@@ -116,6 +116,10 @@ export default function Landing() {
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
+    // Simpan kode referral dari URL ke sessionStorage
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) sessionStorage.setItem('ref_marketing', ref);
+
     getUnits().then((res) => {
       if (res.success) setUnits(res.data);
       setLoading(false);

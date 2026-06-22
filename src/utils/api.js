@@ -96,22 +96,23 @@ export async function uploadDokumen(noWA, jenis, file) {
 
 export async function submitBooking({
   nama, noWA, unitId, tglMulai, jamMulai, durasi, metode, catatan,
-  isBaru, doKtp, doKk, doSim, doSosmed,
+  isBaru, doKtp, doKk, doSim, doSosmed, refMarketing,
 }) {
   const { error } = await supabase.from('booking_request').insert({
     unit_id:        unitId,
     tgl_mulai:      tglMulai,
-    jam_mulai:      jamMulai   || null,
-    durasi:         durasi     || null,
-    metode:         metode     || null,
-    catatan:        catatan    || null,
+    jam_mulai:      jamMulai      || null,
+    durasi:         durasi        || null,
+    metode:         metode        || null,
+    catatan:        catatan       || null,
     nama_pemesan:   nama,
     no_wa_pemesan:  noWA,
     is_baru:        isBaru,
-    dokumen_ktp:    doKtp      || null,
-    dokumen_kk:     doKk       || null,
-    dokumen_sim:    doSim      || null,
-    dokumen_sosmed: doSosmed   || null,
+    ref_marketing:  refMarketing  || 'franik',
+    dokumen_ktp:    doKtp         || null,
+    dokumen_kk:     doKk          || null,
+    dokumen_sim:    doSim         || null,
+    dokumen_sosmed: doSosmed      || null,
   });
   if (error) return { success: false, message: error.message };
   return { success: true };

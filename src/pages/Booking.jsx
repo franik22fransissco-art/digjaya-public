@@ -230,10 +230,14 @@ export default function Booking() {
     const catatanFinal = form.metode === 'With Driver'
       ? `[Tujuan] ${form.tujuan}${form.catatan ? '\n' + form.catatan : ''}`
       : form.catatan;
+    const refMarketing = new URLSearchParams(window.location.search).get('ref')
+      || sessionStorage.getItem('ref_marketing')
+      || 'franik';
     const res = await submitBooking({
       ...form,
       catatan: catatanFinal,
       isBaru,
+      refMarketing,
       doKtp:    dok.ktp    || null,
       doKk:     dok.kk     || null,
       doSim:    dok.sim    || null,
