@@ -67,11 +67,11 @@ export default function CekStatus() {
 
   async function handleCancel(id) {
     setCancelling(true);
-    const res = await cancelBookingRequest(id, noWA);
+    const res = await cancelBookingRequest(id);
     setCancelling(false);
     setCancelId(null);
     if (res.success) {
-      setResults((prev) => prev.map((r) => r.id === id ? { ...r, status: 'CANCEL' } : r));
+      setResults((prev) => prev.filter((r) => r.id !== id));
     } else {
       setError('Gagal membatalkan pesanan. Coba lagi.');
     }

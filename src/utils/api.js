@@ -140,14 +140,12 @@ export async function getStatusByWA(noWA) {
   return { success: true, data: data || [] };
 }
 
-export async function cancelBookingRequest(id, noWA) {
-  const { fmt0, fmt62, fmtPlus, raw } = waFormats(noWA);
+export async function cancelBookingRequest(id) {
   const { error } = await supabase
     .from('booking_request')
-    .update({ status: 'CANCEL' })
+    .delete()
     .eq('id', id)
-    .eq('status', 'PENDING')
-    .or(`no_wa_pemesan.eq.${fmt0},no_wa_pemesan.eq.${fmt62},no_wa_pemesan.eq.${fmtPlus},no_wa_pemesan.eq.${raw}`);
+    .eq('status', 'PENDING');
   if (error) return { success: false, message: error.message };
   return { success: true };
 }
