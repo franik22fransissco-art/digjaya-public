@@ -191,7 +191,7 @@ export default function Landing() {
             {[
               { icon: Shield, label: 'Unit Terawat', desc: 'Servis rutin' },
               { icon: Zap,    label: 'Respon Cepat', desc: '< 15 menit'  },
-              { icon: Award,  label: 'Terpercaya',   desc: '5+ tahun'     },
+              { icon: Award,  label: 'Terpercaya',   desc: 'Amanah'       },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="flex flex-col items-center gap-1.5 py-4 px-2">
                 <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center">
