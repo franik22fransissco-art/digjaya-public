@@ -12,7 +12,7 @@ const STATUS_CONFIG = {
 
 const REKENING = [
   { id: 'bca',  icon: '🏦', label: 'Transfer Bank BCA', no: '0551941000',   nama: 'Franik Fransissco', warna: 'border-blue-200 bg-blue-50' },
-  { id: 'dana', icon: '💙', logoUrl: '/dana-logo.svg', label: 'DANA', no: '085703622538', nama: 'Franik Fransissco', warna: 'border-blue-100 bg-sky-50' },
+  { id: 'dana', icon: '💙', logoUrl: '/dana-logo.png', label: 'DANA', no: '085703622538', nama: 'Franik Fransissco', warna: 'border-blue-100 bg-sky-50' },
 ];
 
 function fmtDate(str) {
