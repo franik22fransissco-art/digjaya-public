@@ -12,7 +12,7 @@ const STATUS_CONFIG = {
 
 const REKENING = [
   { id: 'bca',  icon: '🏦', label: 'Transfer Bank BCA', no: '0551941000',   nama: 'Franik Fransissco', warna: 'border-blue-200 bg-blue-50' },
-  { id: 'dana', icon: '💙', logoUrl: '/dana-logo.svg', label: 'DANA', no: '085703622538', nama: 'Franik Fransissco', warna: 'border-blue-100 bg-sky-50' },
+  { id: 'dana', icon: '💙', logoUrl: '/logo DANA.jpg', label: 'DANA', no: '085703622538', nama: 'Franik Fransissco', warna: 'border-blue-100 bg-sky-50' },
 ];
 
 function fmtDate(str) {
@@ -200,14 +200,39 @@ export default function CekStatus() {
                 )}
 
                 {/* Harga + Pembayaran (jika sudah disetujui dan ada nominal) */}
-                {ada_harga && (
+                {ada_harga && (() => {
+                  const metodeLower  = (r.metode || '').toLowerCase();
+                  const isDelivery   = metodeLower.includes('antar');
+                  const isDriver     = metodeLower.includes('driver');
+                  const sewa         = Number(r.nominal) || 0;
+                  const delivery     = Number(r.biaya_delivery) || 0;
+                  const dep          = Number(r.deposit) || 0;
+                  const total        = sewa + delivery + dep;
+                  return (
                   <div className="pt-2 space-y-3 border-t border-gray-100 mt-2">
-                    {/* Total harga */}
-                    <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-center">
-                      <p className="text-xs text-orange-600 font-medium mb-0.5">Total Pembayaran</p>
-                      <p className="text-2xl font-bold text-orange-700">
-                        Rp {Number(r.nominal).toLocaleString('id-ID')}
-                      </p>
+                    {/* Rincian biaya */}
+                    <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 space-y-1.5">
+                      <p className="text-xs text-orange-600 font-semibold mb-1">Rincian Biaya</p>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">{isDriver ? 'Harga All-in' : 'Harga Sewa'}</span>
+                        <span className="font-semibold text-gray-800">Rp {sewa.toLocaleString('id-ID')}</span>
+                      </div>
+                      {isDelivery && delivery > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Biaya Delivery</span>
+                          <span className="font-semibold text-gray-800">Rp {delivery.toLocaleString('id-ID')}</span>
+                        </div>
+                      )}
+                      {!isDriver && dep > 0 && (
+                        <div className="flex justify-between text-sm border-t border-orange-200 pt-1.5">
+                          <span className="text-purple-600">Deposit <span className="text-[10px] font-normal">(dikembalikan)</span></span>
+                          <span className="font-semibold text-purple-700">Rp {dep.toLocaleString('id-ID')}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between border-t border-orange-300 pt-1.5 mt-0.5">
+                        <span className="font-bold text-orange-700">Total Pembayaran</span>
+                        <span className="text-xl font-bold text-orange-700">Rp {total.toLocaleString('id-ID')}</span>
+                      </div>
                     </div>
 
                     {/* Opsi bayar */}
@@ -242,7 +267,8 @@ export default function CekStatus() {
                       Setelah transfer, simpan bukti pembayaran dan tunjukkan saat pengambilan
                     </p>
                   </div>
-                )}
+                  );
+                })()}
 
                 <p className="text-[11px] text-gray-300 pt-1">
                   Dipesan: {fmtDateTime(r.created_at)}
