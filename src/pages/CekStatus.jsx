@@ -12,7 +12,7 @@ const STATUS_CONFIG = {
 
 const REKENING = [
   { id: 'bca',  icon: '🏦', label: 'Transfer Bank BCA', no: '0551941000',   nama: 'Franik Fransissco', warna: 'border-blue-200 bg-blue-50' },
-  { id: 'dana', icon: '💙', label: 'DANA',              no: '085703622538', nama: 'Franik Fransissco', warna: 'border-blue-100 bg-sky-50'  },
+  { id: 'dana', icon: '💙', logoUrl: '/dana-logo.svg', label: 'DANA', no: '085703622538', nama: 'Franik Fransissco', warna: 'border-blue-100 bg-sky-50' },
 ];
 
 function fmtDate(str) {
@@ -225,7 +225,10 @@ export default function CekStatus() {
                     {/* Transfer & Dana */}
                     {REKENING.map((rek) => (
                       <div key={rek.id} className={`flex items-center gap-3 border rounded-xl p-3 ${rek.warna}`}>
-                        <span className="text-2xl">{rek.icon}</span>
+                        {rek.logoUrl
+                          ? <img src={rek.logoUrl} alt={rek.label} className="w-10 h-10 object-contain rounded-xl" />
+                          : <span className="text-2xl">{rek.icon}</span>
+                        }
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm text-gray-800">{rek.label}</p>
                           <p className="text-base font-bold font-mono text-gray-900 tracking-wide">{rek.no}</p>
