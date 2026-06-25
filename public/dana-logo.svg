@@ -1,0 +1,13 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <clipPath id="circle-clip">
+      <circle cx="60" cy="58" r="34"/>
+    </clipPath>
+  </defs>
+  <!-- Latar biru rounded -->
+  <rect width="120" height="120" rx="26" fill="#1089E0"/>
+  <!-- Lingkaran putih -->
+  <circle cx="60" cy="58" r="34" fill="white"/>
+  <!-- Flag biru dalam lingkaran -->
+  <path d="M36 52 Q60 36 84 52 L84 66 Q60 80 36 66 Z" fill="#1089E0" clip-path="url(#circle-clip)"/>
+</svg>
