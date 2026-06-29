@@ -166,7 +166,7 @@ export default function Landing() {
         <div className="relative">
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 mb-5">
             <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
-            <span className="text-orange-400/90 text-[10px] font-bold tracking-[0.15em] uppercase">Rental Kendaraan Subang</span>
+            <span className="text-orange-400/90 text-[10px] font-bold tracking-[0.15em] uppercase">Rental Kendaraan Kalijati Subang</span>
           </div>
 
           <h1 className="text-[2rem] font-black text-white leading-[1.15] mb-3">
