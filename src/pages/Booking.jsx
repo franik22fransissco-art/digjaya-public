@@ -87,6 +87,7 @@ export default function Booking() {
     jamMulai: '',
     durasi:   '24 Jam (1 Hari)',
     metode:   'Antar ke Lokasi',
+    jaminan:  '',
     catatan:  '',
   });
 
@@ -113,10 +114,23 @@ export default function Booking() {
     getUnits().then((r) => { if (r.success) setUnits(r.data); });
   }, []);
 
-  const unitNama = params.get('unitNama')
-    || units.find((u) => u.id === form.unitId)?.nama || '';
+  const unitNama    = params.get('unitNama') || units.find((u) => u.id === form.unitId)?.nama || '';
+  const selectedUnit = units.find((u) => u.id === form.unitId);
+  const isMotor     = (selectedUnit?.tipe || '').toLowerCase() === 'motor';
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); setAvail(null); setError(''); }
+
+  // Auto-set jaminan sesuai tipe unit
+  useEffect(() => {
+    if (!form.unitId || units.length === 0) return;
+    const unit = units.find((u) => u.id === form.unitId);
+    const tipe = (unit?.tipe || '').toLowerCase();
+    if (tipe === 'motor') {
+      setForm((f) => ({ ...f, jaminan: 'Deposit' }));
+    } else {
+      setForm((f) => ({ ...f, jaminan: '' }));
+    }
+  }, [form.unitId, units]);
 
   // Cek pelanggan + blacklist saat WA di-blur
   async function handleWABlur() {
@@ -163,7 +177,7 @@ export default function Booking() {
 
   // Step 1 → next
   async function handleStep1() {
-    const { nama, noWA, unitId, tglMulai, durasi, metode, tujuan } = form;
+    const { nama, noWA, unitId, tglMulai, durasi, metode, tujuan, jaminan } = form;
     if (!nama || !noWA || !unitId || !tglMulai || !durasi || !metode) {
       setError('Semua field wajib diisi'); return;
     }
@@ -171,6 +185,7 @@ export default function Booking() {
     if (metode === 'With Driver' && !tujuan.trim()) {
       setError('Tujuan/rute wajib diisi untuk layanan With Driver'); return;
     }
+    if (!jaminan) { setError('Pilih jenis jaminan'); return; }
     setError('');
 
     // Langsung await hasil check — jangan andalkan state React yang async
@@ -238,6 +253,7 @@ export default function Booking() {
     const res = await submitBooking({
       ...form,
       catatan: catatanFinal,
+      jaminan:  form.jaminan || null,
       isBaru,
       refMarketing,
       doKtp:    dok.ktp    || null,
@@ -522,6 +538,43 @@ export default function Booking() {
               <p className="text-[11px] text-orange-500 font-medium mt-1">
                 ⚠ Harga With Driver ditentukan berdasarkan rute — tulis sejelas mungkin
               </p>
+            </Field>
+          )}
+
+          {/* Jaminan — muncul setelah unit dipilih */}
+          {form.unitId && (
+            <Field label="Jaminan" required>
+              {isMotor ? (
+                <div className="flex items-center gap-3 border-2 border-orange-200 bg-orange-50 rounded-xl px-4 py-3">
+                  <span className="text-xl">💵</span>
+                  <div>
+                    <p className="text-sm font-semibold text-orange-700">Deposit (uang tunai)</p>
+                    <p className="text-[11px] text-orange-500 mt-0.5">Sewa motor wajib deposit uang tunai</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {[
+                    { val: 'Deposit',    label: 'Deposit (uang tunai)',             icon: '💵' },
+                    { val: 'Kendaraan',  label: 'Kendaraan (Motor/Mobil + STNK)',   icon: '🏍' },
+                    { val: 'Lainnya',    label: 'Lainnya',                           icon: '📋' },
+                  ].map(({ val, label, icon }) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => set('jaminan', val)}
+                      className={`w-full py-3 rounded-xl text-sm font-medium border-2 transition text-left px-4 flex items-center gap-3 ${
+                        form.jaminan === val
+                          ? 'border-orange-500 bg-orange-50 text-orange-700'
+                          : 'border-gray-200 text-gray-600'
+                      }`}
+                    >
+                      <span className="text-base">{icon}</span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </Field>
           )}
 

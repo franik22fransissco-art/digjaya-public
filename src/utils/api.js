@@ -96,7 +96,7 @@ export async function uploadDokumen(noWA, jenis, file) {
 // ─── Submit Booking Request ───────────────────────────────────────────────────
 
 export async function submitBooking({
-  nama, noWA, unitId, tglMulai, jamMulai, durasi, metode, catatan,
+  nama, noWA, unitId, tglMulai, jamMulai, durasi, metode, catatan, jaminan,
   isBaru, doKtp, doKk, doSim, doSosmed, refMarketing,
 }) {
   const { error } = await supabase.from('booking_request').insert({
@@ -106,6 +106,7 @@ export async function submitBooking({
     durasi:         durasi        || null,
     metode:         metode        || null,
     catatan:        catatan       || null,
+    jaminan:        jaminan       || null,
     nama_pemesan:   nama,
     no_wa_pemesan:  noWA,
     is_baru:        isBaru,
