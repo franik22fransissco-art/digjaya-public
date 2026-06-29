@@ -5,6 +5,7 @@ import {
   Loader, Upload, UserCheck, UserPlus, ChevronRight,
 } from 'lucide-react';
 import { getUnits, checkAvailability, checkPelanggan, checkBlacklist, uploadDokumen, submitBooking } from '../utils/api';
+import { compressImage } from '../utils/compressImage';
 
 const DURASI_OPTIONS = [
   '6 Jam', '12 Jam', '24 Jam (1 Hari)',
@@ -207,6 +208,7 @@ export default function Booking() {
   async function handleUploadDok(key, file) {
     if (!file) return;
     setDokLoading((p) => ({ ...p, [key]: true }));
+    file = await compressImage(file, { maxWidth: 1600, quality: 0.85 });
     const res = await uploadDokumen(form.noWA, key, file);
     if (res.success) {
       setDokPath((p) => ({ ...p, [key]: res.path }));
