@@ -25,13 +25,17 @@ function fmtRp(n) {
 }
 
 function UnitCard({ unit, onClick }) {
-  const [photo, setPhoto] = useState(getDefaultPhoto(unit));
+  const [photo, setPhoto] = useState(null);
   const [imgErr, setImgErr] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(true);
   const available = unit.status === 'READY';
   const st = STATUS_LABEL[unit.status] || STATUS_LABEL.READY;
 
   useEffect(() => {
-    getUnitPhotos(unit.id).then((urls) => { if (urls[0]) setPhoto(urls[0]); });
+    getUnitPhotos(unit.id).then((urls) => {
+      setPhoto(urls[0] || getDefaultPhoto(unit));
+      setPhotoLoading(false);
+    });
   }, [unit.id]);
 
   function handleImgError() {
@@ -54,7 +58,9 @@ function UnitCard({ unit, onClick }) {
       }`}
     >
       <div className="relative h-40 bg-gray-100 overflow-hidden">
-        {photo && !imgErr ? (
+        {photoLoading ? (
+          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
+        ) : photo && !imgErr ? (
           <img
             src={photo} alt={unit.nama}
             className="w-full h-full object-cover"

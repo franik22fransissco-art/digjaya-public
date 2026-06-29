@@ -16,7 +16,7 @@ export async function getUnits() {
 export async function getUnitPhotos(unitId) {
   const { data, error } = await supabase.storage
     .from('unit-photos')
-    .list(`units/${unitId}`, { limit: 3 });
+    .list(`units/${unitId}`, { limit: 3, sortBy: { column: 'updated_at', order: 'desc' } });
   if (error || !data?.length) return [];
   return data
     .filter((f) => f.name !== '.emptyFolderPlaceholder')
@@ -24,7 +24,8 @@ export async function getUnitPhotos(unitId) {
       const { data: url } = supabase.storage
         .from('unit-photos')
         .getPublicUrl(`units/${unitId}/${f.name}`);
-      return url?.publicUrl || null;
+      const ts = new Date(f.updated_at || f.created_at).getTime() || Date.now();
+      return url?.publicUrl ? `${url.publicUrl}?t=${ts}` : null;
     })
     .filter(Boolean);
 }
