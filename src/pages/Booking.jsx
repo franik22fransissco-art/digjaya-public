@@ -120,16 +120,21 @@ export default function Booking() {
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); setAvail(null); setError(''); }
 
-  // Auto-set jaminan sesuai tipe unit
+  const prevTipeRef = useRef('');
+
+  // Auto-set jaminan sesuai tipe unit; hanya reset saat tipe BERUBAH (motor↔mobil)
   useEffect(() => {
     if (!form.unitId || units.length === 0) return;
     const unit = units.find((u) => u.id === form.unitId);
     const tipe = (unit?.tipe || '').toLowerCase();
     if (tipe === 'motor') {
       setForm((f) => ({ ...f, jaminan: 'Deposit' }));
-    } else {
+    } else if (prevTipeRef.current === 'motor') {
+      // Baru pindah dari motor ke non-motor: hapus jaminan yang tadi auto-set
       setForm((f) => ({ ...f, jaminan: '' }));
     }
+    // Ganti unit dalam tipe yang sama: jaminan tidak diubah
+    prevTipeRef.current = tipe;
   }, [form.unitId, units]);
 
   // Cek pelanggan + blacklist saat WA di-blur
