@@ -111,7 +111,7 @@ export async function submitBooking({
     catatan:        catatan       || null,
     jaminan:        jaminan       || null,
     nama_pemesan:   nama,
-    no_wa_pemesan:  noWA,
+    no_wa_pemesan:  waFormats(noWA).fmt62,
     is_baru:        isBaru,
     ref_marketing:  refMarketing  || 'franik',
     dokumen_ktp:    doKtp         || null,
