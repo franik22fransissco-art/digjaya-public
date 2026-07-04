@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, CheckCircle, AlertCircle, Car,
-  Loader, Upload, UserCheck, UserPlus, ChevronRight,
+  Loader, Upload, UserCheck, UserPlus, ChevronRight, Camera,
 } from 'lucide-react';
 import { getUnits, checkAvailability, checkPelanggan, checkBlacklist, uploadDokumen, submitBooking } from '../utils/api';
 import { compressImage } from '../utils/compressImage';
@@ -38,36 +38,55 @@ function Field({ label, children, hint, required }) {
 }
 
 function UploadBox({ label, required, value, onChange, loading }) {
-  const ref = useRef();
+  const camRef = useRef();
+  const galRef = useRef();
+  const [showOptions, setShowOptions] = useState(!value);
+
+  useEffect(() => { if (value) setShowOptions(false); }, [value]);
+
   return (
     <div>
       <p className="text-xs font-semibold text-gray-600 mb-1">
         {label} {required && <span className="text-red-400">*</span>}
       </p>
-      <div
-        onClick={() => ref.current?.click()}
-        className={`relative border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition ${
-          value ? 'border-orange-400 bg-orange-50' : 'border-gray-200 bg-gray-50 hover:border-orange-300'
-        }`}
-      >
-        <input ref={ref} type="file" accept="image/*" className="hidden" onChange={onChange} />
-        {value ? (
-          <div className="relative">
-            <img src={value} alt={label} className="w-full h-32 object-cover" />
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <p className="text-white text-xs font-bold">Ganti Foto</p>
-            </div>
+      <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onChange} />
+      <input ref={galRef} type="file" accept="image/*" className="hidden" onChange={onChange} />
+
+      {loading ? (
+        <div className="h-24 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 bg-gray-50 rounded-xl">
+          <Loader className="w-6 h-6 text-orange-400 animate-spin" />
+          <p className="text-xs text-gray-400">Mengupload...</p>
+        </div>
+      ) : value && !showOptions ? (
+        <div
+          onClick={() => setShowOptions(true)}
+          className="relative border-2 border-dashed border-orange-400 bg-orange-50 rounded-xl overflow-hidden cursor-pointer transition"
+        >
+          <img src={value} alt={label} className="w-full h-32 object-cover" />
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <p className="text-white text-xs font-bold">Ganti Foto</p>
           </div>
-        ) : (
-          <div className="h-24 flex flex-col items-center justify-center gap-2">
-            {loading
-              ? <Loader className="w-6 h-6 text-orange-400 animate-spin" />
-              : <Upload className="w-6 h-6 text-gray-300" />
-            }
-            <p className="text-xs text-gray-400">{loading ? 'Mengupload...' : 'Ketuk untuk ambil/pilih foto'}</p>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => camRef.current?.click()}
+            className="flex flex-col items-center gap-1.5 border-2 border-dashed border-orange-300 rounded-xl py-3.5 hover:border-orange-500 bg-orange-50 transition"
+          >
+            <Camera className="w-5 h-5 text-orange-500" />
+            <span className="text-xs text-orange-600 font-medium">Kamera</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => galRef.current?.click()}
+            className="flex flex-col items-center gap-1.5 border-2 border-dashed border-orange-300 rounded-xl py-3.5 hover:border-orange-500 bg-orange-50 transition"
+          >
+            <Upload className="w-5 h-5 text-orange-500" />
+            <span className="text-xs text-orange-600 font-medium">Galeri</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
