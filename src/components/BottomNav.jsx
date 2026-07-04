@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Home, FileText, CalendarPlus, Search, MessageCircle } from 'lucide-react';
+import { ADMIN_WA_NUMBER } from '../utils/constants';
 
 const menus = [
   { to: '/',           icon: Home,          label: 'Beranda', end: true },
@@ -36,7 +37,7 @@ export default function BottomNav() {
 
           {/* Chat WA */}
           <button
-            onClick={() => window.open('https://wa.me/6285862177805', '_blank')}
+            onClick={() => window.open(`https://wa.me/${ADMIN_WA_NUMBER}`, '_blank')}
             className="flex-1 flex flex-col items-center py-2.5 gap-0.5 text-emerald-500 transition-opacity active:opacity-70"
           >
             <MessageCircle className="w-5 h-5" />

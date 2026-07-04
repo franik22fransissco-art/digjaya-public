@@ -1,0 +1,1 @@
+export const ADMIN_WA_NUMBER = '6285862177805';

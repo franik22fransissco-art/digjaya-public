@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, Clock, CheckCircle, XCircle, Loader, Copy, Check, AlertTriangle } from 'lucide-react';
 import { getStatusByWA, cancelBookingRequest } from '../utils/api';
+import { ADMIN_WA_NUMBER } from '../utils/constants';
 
 const STATUS_CONFIG = {
   PENDING:  { label: 'Menunggu Konfirmasi', icon: Clock,          cls: 'bg-yellow-50 text-yellow-700 border-yellow-200', iconCls: 'text-yellow-500' },
@@ -322,7 +323,7 @@ export default function CekStatus() {
                 {r.status === 'REJECTED' && (
                   <div className="pt-1">
                     <a
-                      href="https://wa.me/6285862177805"
+                      href={`https://wa.me/${ADMIN_WA_NUMBER}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block w-full bg-green-500 text-white text-center text-sm font-bold py-2.5 rounded-xl"

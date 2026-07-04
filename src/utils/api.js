@@ -33,25 +33,27 @@ export async function getUnitPhotos(unitId) {
 // ─── Availability ─────────────────────────────────────────────────────────────
 
 export async function checkAvailability(unitId, tglMulai, tglSelesai) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('transaksi')
     .select('id')
     .eq('unit_id', unitId)
     .in('status', ['BOOKING', 'JALAN'])
     .lte('tgl_mulai', tglSelesai)
     .gte('tgl_selesai', tglMulai);
+  if (error) return false; // gagal cek → jangan anggap tersedia
   return !data?.length; // true = tersedia
 }
 
 // ─── Cek pelanggan lama / baru ───────────────────────────────────────────────
 
 export async function checkPelanggan(noWA) {
-  const clean = noWA.replace(/\D/g, '').replace(/^0/, '62');
-  const { data: pel } = await supabase
+  const { fmt0, fmt62, fmtPlus, raw } = waFormats(noWA);
+  const { data: rows } = await supabase
     .from('pelanggan')
     .select('id, nama, status_verif')
-    .or(`no_wa.eq.${noWA},no_wa.eq.0${clean.slice(2)},no_wa.eq.${clean}`)
-    .maybeSingle();
+    .or(`no_wa.eq.${fmt0},no_wa.eq.${fmt62},no_wa.eq.${fmtPlus},no_wa.eq.${raw}`)
+    .limit(1);
+  const pel = rows?.[0] || null;
 
   if (!pel) return null; // benar-benar belum pernah daftar
 
@@ -70,12 +72,13 @@ export async function checkPelanggan(noWA) {
 // ─── Cek blacklist / risk status pelanggan ───────────────────────────────────
 
 export async function checkBlacklist(noWA) {
-  const clean = noWA.replace(/\D/g, '').replace(/^0/, '62');
-  const { data } = await supabase
+  const { fmt0, fmt62, fmtPlus, raw } = waFormats(noWA);
+  const { data: rows } = await supabase
     .from('pelanggan')
     .select('risk_status, risk_catatan')
-    .or(`no_wa.eq.${noWA},no_wa.eq.0${clean.slice(2)},no_wa.eq.${clean}`)
-    .maybeSingle();
+    .or(`no_wa.eq.${fmt0},no_wa.eq.${fmt62},no_wa.eq.${fmtPlus},no_wa.eq.${raw}`)
+    .limit(1);
+  const data = rows?.[0] || null;
   if (!data) return { status: 'OK', catatan: '' };
   return { status: data.risk_status || 'OK', catatan: data.risk_catatan || '' };
 }

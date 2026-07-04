@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
+import { ADMIN_WA_NUMBER } from '../utils/constants';
 
 const SECTIONS = [
   {
@@ -121,7 +122,7 @@ export default function SK() {
           <p className="text-sm font-black text-gray-800 mb-1">Ada pertanyaan?</p>
           <p className="text-xs text-gray-400 mb-4">Hubungi kami langsung via WhatsApp</p>
           <a
-            href="https://wa.me/6285862177805"
+            href={`https://wa.me/${ADMIN_WA_NUMBER}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold px-7 py-3 rounded-2xl shadow-sm shadow-emerald-500/25 active:scale-95 transition"
