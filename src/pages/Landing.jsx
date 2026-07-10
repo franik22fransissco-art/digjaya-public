@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Car, ChevronRight, ChevronDown, Bike, Shield, Zap, MessageCircle,
   Wallet, Headset, ClipboardCheck, Truck, CalendarDays, UserCheck,
-  Star, MapPin, Clock, Phone,
+  Star, MapPin, Clock, Phone, Users, CheckCircle2, Check,
 } from 'lucide-react';
 import { getUnits, getUnitPhotos } from '../utils/api';
 import { ADMIN_WA_NUMBER } from '../utils/constants';
@@ -49,10 +49,31 @@ const LAYANAN = [
 ];
 
 // Placeholder — ganti dengan testimoni pelanggan asli begitu tersedia.
-const TESTIMONI = [
+// Struktur (nama, unit, rating, quote) sudah final, tinggal ganti isinya.
+const testimonials = [
   { nama: 'Budi S.', unit: 'Honda Beat',    rating: 5, quote: 'Prosesnya cepat, unitnya bersih dan terawat. Diantar tepat waktu ke rumah.' },
   { nama: 'Rina A.', unit: 'Toyota Avanza', rating: 5, quote: 'Harga sesuai yang di web, tidak ada biaya tambahan mendadak. Recommended untuk sewa mobil keluarga.' },
   { nama: 'Dedi P.', unit: 'Yamaha NMAX',   rating: 5, quote: 'Admin fast response, tanya-tanya langsung dibalas. Motornya juga wangi dan kondisinya bagus.' },
+];
+
+// Badge trust singkat, ditampilkan tepat di bawah hero.
+const TRUST_BADGES = [
+  { icon: Clock,          label: 'Buka 24 Jam' },
+  { icon: Truck,          label: 'Antar ke Lokasi' },
+  { icon: ClipboardCheck, label: 'Booking Mudah' },
+  { icon: Wallet,         label: 'Harga Transparan' },
+];
+
+// Statistik untuk section "Mengapa Memilih DIGJAYA?". "Pelanggan Dilayani" dan
+// "Booking Selesai" masih placeholder — beri komentar TODO supaya gampang
+// ditemukan begitu ada agregat data asli dari backend. "Respon Cepat" memakai
+// klaim SLA yang sama dengan section Keunggulan (bukan angka dinamis, jadi
+// aman sebagai teks tetap). "Unit Tersedia" TIDAK placeholder — dihitung dari
+// `readyCount` yang sudah nyata diambil dari database (lihat komponen Landing).
+const STATS_PLACEHOLDER = [
+  { icon: Users,        value: '500+',        label: 'Pelanggan Dilayani' }, // TODO: hubungkan ke agregat asli
+  { icon: CheckCircle2, value: '1.200+',      label: 'Booking Selesai' },    // TODO: hubungkan ke agregat asli
+  { icon: Zap,          value: '< 15 menit',  label: 'Respon Cepat' },
 ];
 
 // FAQ — jawaban mengikuti aturan yang sama persis dengan halaman Syarat & Ketentuan.
@@ -275,6 +296,18 @@ export default function Landing() {
 
   const readyCount = units.filter((u) => u.status === 'READY').length;
 
+  // Galeri memakai foto unit yang sudah ada di data `units` (field foto_url) —
+  // tidak ada fetch baru, tidak ada aset baru. Kosong secara wajar kalau belum
+  // ada unit yang punya foto_url terisi.
+  const galeriFotos = units.filter((u) => u.foto_url).slice(0, 8);
+
+  // "Unit Tersedia" di section statistik memakai data asli (readyCount di atas),
+  // bukan placeholder — digabung dengan 3 statistik lain yang masih placeholder.
+  const stats = [
+    { icon: Car, value: `${readyCount}+`, label: 'Unit Tersedia' },
+    ...STATS_PLACEHOLDER,
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
 
@@ -344,8 +377,44 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* Trust badges — tepat di bawah hero */}
+      <div className="px-4 pt-5">
+        <div className="flex flex-wrap gap-2">
+          {TRUST_BADGES.map(({ icon: Icon, label }) => (
+            <div key={label} className="flex items-center gap-1.5 bg-white border border-gray-100 shadow-sm rounded-full pl-2 pr-3 py-1.5">
+              <span className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                <Check className="w-2.5 h-2.5 text-emerald-600" strokeWidth={3} />
+              </span>
+              <Icon className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+              <span className="text-[11px] font-bold text-gray-700">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Statistik — Mengapa Memilih DIGJAYA? */}
+      <div className="px-4 pt-8">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-1 h-5 bg-orange-500 rounded-full" />
+          <h2 className="font-black text-gray-900 text-lg">Mengapa Memilih DIGJAYA?</h2>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {stats.map(({ icon: Icon, value, label }) => (
+            <div key={label} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                <Icon className="w-5 h-5 text-orange-500" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-black text-gray-900 text-lg leading-none truncate">{value}</p>
+                <p className="text-[11px] text-gray-400 font-medium mt-1 leading-tight">{label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Layanan */}
-      <div className="px-4 pt-6">
+      <div className="px-4 pt-8">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 bg-orange-500 rounded-full" />
           <h2 className="font-black text-gray-900 text-lg">Layanan Kami</h2>
@@ -440,8 +509,32 @@ export default function Landing() {
         )}
       </div>
 
+      {/* Galeri Armada — pakai foto unit yang sudah ada (unit.foto_url), tanpa fetch/aset baru */}
+      {!loading && galeriFotos.length > 0 && (
+        <div className="px-4 pt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-5 bg-orange-500 rounded-full" />
+            <h2 className="font-black text-gray-900 text-lg">Galeri Armada</h2>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {galeriFotos.map((u) => (
+              <div key={u.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
+                <img
+                  src={u.foto_url}
+                  alt={u.nama}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                  <p className="text-white text-[10px] font-bold truncate">{u.nama}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Cara Pesan */}
-      <div className="px-4 pt-6 pb-4">
+      <div className="px-4 pt-8 pb-4">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1 h-5 bg-orange-500 rounded-full" />
@@ -467,13 +560,13 @@ export default function Landing() {
       </div>
 
       {/* Testimoni */}
-      <div className="px-4 pt-4">
+      <div className="px-4 pt-8">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 bg-orange-500 rounded-full" />
           <h2 className="font-black text-gray-900 text-lg">Kata Pelanggan Kami</h2>
         </div>
         <div className="space-y-3">
-          {TESTIMONI.map((t) => (
+          {testimonials.map((t) => (
             <div key={t.nama} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
               <div className="flex items-center gap-1 mb-2">
                 {Array.from({ length: t.rating }).map((_, i) => (
@@ -506,6 +599,21 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* CTA kecil setelah FAQ */}
+      <div className="px-4 pt-8">
+        <div className="bg-white rounded-2xl border border-dashed border-orange-200 p-5 text-center">
+          <p className="font-bold text-gray-800 text-sm mb-1">Masih ada pertanyaan?</p>
+          <p className="text-xs text-gray-400 mb-4">Tim kami siap membantu lewat WhatsApp</p>
+          <a
+            href={`https://wa.me/${ADMIN_WA_NUMBER}`}
+            target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl active:scale-95 transition"
+          >
+            <MessageCircle className="w-4 h-4" /> Chat WhatsApp
+          </a>
+        </div>
+      </div>
+
       {/* CTA Besar */}
       <div className="px-4 pt-8 pb-2">
         <div className="bg-gray-900 rounded-2xl p-6 text-center relative overflow-hidden border border-white/5">
@@ -532,6 +640,17 @@ export default function Landing() {
       </div>
 
       <Footer />
+
+      {/* Floating WhatsApp — selalu terlihat, diposisikan di atas Bottom Navigation
+          (bottom-20 = clear dari nav fixed di bawahnya), tidak mengubah tombol WA lain. */}
+      <a
+        href={`https://wa.me/${ADMIN_WA_NUMBER}`}
+        target="_blank" rel="noopener noreferrer"
+        aria-label="Chat WhatsApp"
+        className="fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-all"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </a>
     </div>
   );
 }
