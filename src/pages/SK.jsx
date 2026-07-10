@@ -97,7 +97,7 @@ export default function SK() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2.5">
-            <img src="/logo.jpg" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
+            <img src="/logo.png" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
             <div className="leading-none">
               <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest">DIGJAYA RENTAL</p>
               <h1 className="font-black text-white text-lg mt-0.5">Syarat & Ketentuan</h1>

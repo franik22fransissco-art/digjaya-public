@@ -43,7 +43,7 @@ function CopyBtn({ text }) {
     <button
       onClick={handleCopy}
       className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition ${
-        copied ? 'bg-green-100 text-green-700 border-green-300' : 'bg-white text-blue-600 border-blue-200'
+        copied ? 'bg-green-100 text-green-700 border-green-300' : 'bg-white text-orange-600 border-orange-200'
       }`}
     >
       {copied ? <><Check className="w-3 h-3" /> Disalin</> : <><Copy className="w-3 h-3" /> Salin</>}
@@ -104,7 +104,7 @@ export default function CekStatus() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2.5">
-            <img src="/logo.jpg" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
+            <img src="/logo.png" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
             <div className="leading-none">
               <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest">DIGJAYA RENTAL</p>
               <h1 className="font-black text-white text-lg mt-0.5">Cek Status Pesanan</h1>

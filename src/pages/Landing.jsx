@@ -150,7 +150,7 @@ export default function Landing() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-gray-900 border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <img src="/logo.jpg" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
+          <img src="/logo.png" alt="DIGJAYA" className="h-8 w-8 object-contain rounded-xl" />
           <div className="leading-none">
             <p className="text-white font-black text-sm tracking-wide">DIGJAYA</p>
             <p className="text-orange-400 text-[10px] font-bold tracking-[0.2em] mt-0.5">RENTAL</p>
