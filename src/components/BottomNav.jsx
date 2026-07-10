@@ -22,14 +22,14 @@ export default function BottomNav() {
               className="flex-1"
             >
               {({ isActive }) => (
-                <div className={`flex flex-col items-center py-2.5 gap-0.5 relative transition-colors ${
+                <div className={`flex flex-col items-center py-3 gap-1 relative transition-colors duration-200 ${
                   isActive ? 'text-orange-500' : 'text-gray-400'
                 }`}>
                   {isActive && (
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-orange-500 rounded-b-full" />
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[3px] bg-orange-500 rounded-b-full" />
                   )}
-                  <Icon className="w-5 h-5" />
-                  <span className="text-[10px] font-bold">{label}</span>
+                  <Icon className="w-5 h-5" strokeWidth={isActive ? 2.25 : 2} />
+                  <span className="text-xs font-semibold">{label}</span>
                 </div>
               )}
             </NavLink>
@@ -37,11 +37,11 @@ export default function BottomNav() {
 
           {/* Chat WA */}
           <button
-            onClick={() => window.open(`https://wa.me/${ADMIN_WA_NUMBER}`, '_blank')}
-            className="flex-1 flex flex-col items-center py-2.5 gap-0.5 text-emerald-500 transition-opacity active:opacity-70"
+            onClick={() => window.open(`https://wa.me/${ADMIN_WA_NUMBER}`, '_blank', 'noopener,noreferrer')}
+            className="flex-1 flex flex-col items-center py-3 gap-1 text-emerald-500 transition-opacity duration-200 active:opacity-70"
           >
             <MessageCircle className="w-5 h-5" />
-            <span className="text-[10px] font-bold">Chat</span>
+            <span className="text-xs font-semibold">Chat</span>
           </button>
         </div>
       </div>
