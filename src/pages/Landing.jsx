@@ -7,6 +7,11 @@ import { ADMIN_WA_NUMBER } from '../utils/constants';
 const FALLBACK_MOTOR = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80';
 const FALLBACK_MOBIL = 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80';
 
+// Visual utama Hero — motor, karena rental motor adalah bisnis inti DIGJAYA.
+// Ganti URL ini saja begitu ada foto asli armada motor; tidak ada bagian lain
+// yang perlu disentuh.
+const HERO_IMAGE = FALLBACK_MOTOR;
+
 function getDefaultPhoto(unit) {
   if (unit.foto_url) return unit.foto_url;
   return unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
@@ -265,42 +270,40 @@ export default function Landing() {
         </button>
       </div>
 
-      {/* Hero — sederhana: headline pendek, 1 kalimat subheadline, 1 visual, 2 CTA */}
-      <div className="bg-gray-900 px-5 pt-16 pb-12">
-        <div className="text-center max-w-xs mx-auto">
-          <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-5">
-            Kalijati &middot; Subang
-          </p>
-          <h1 className="text-3xl font-bold text-white leading-tight mb-4">
-            Sewa Motor &amp; Mobil
+      {/* Hero — headline sebagai fokus utama, tinggi ~60vh, urutan: headline,
+          subheadline, CTA, lalu visual motor (bisnis inti DIGJAYA). */}
+      <div className="bg-gray-900 min-h-[60vh] flex flex-col justify-center px-5 py-10">
+        <div className="max-w-xs mx-auto w-full text-center">
+          <h1 className="text-[2rem] font-bold text-white leading-tight">
+            Sewa Motor di Kalijati &amp; Subang
           </h1>
-          <p className="text-gray-300 text-sm leading-relaxed">
-            Booking online, diantar ke lokasi Anda, siap 24 jam.
+          <p className="text-gray-300 text-sm leading-relaxed mt-3">
+            Booking online, diantar langsung ke lokasi — mobil juga tersedia.
           </p>
-        </div>
 
-        <div className="max-w-xs mx-auto mt-10 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
-          <img
-            src={FALLBACK_MOBIL}
-            alt="Armada DIGJAYA Rental"
-            className="w-full h-44 object-cover"
-          />
-        </div>
+          <div className="mt-6 flex gap-3">
+            <button
+              onClick={() => navigate('/booking')}
+              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+            >
+              Pesan Sekarang
+            </button>
+            <a
+              href={`https://wa.me/${ADMIN_WA_NUMBER}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+            >
+              <MessageCircle className="w-4 h-4" /> Chat WhatsApp
+            </a>
+          </div>
 
-        <div className="max-w-xs mx-auto mt-8 flex gap-3">
-          <button
-            onClick={() => navigate('/booking')}
-            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
-          >
-            Pesan Sekarang
-          </button>
-          <a
-            href={`https://wa.me/${ADMIN_WA_NUMBER}`}
-            target="_blank" rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
-          >
-            <MessageCircle className="w-4 h-4" /> Chat WhatsApp
-          </a>
+          <div className="mt-6 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+            <img
+              src={HERO_IMAGE}
+              alt="Motor DIGJAYA Rental"
+              className="w-full h-36 object-cover"
+            />
+          </div>
         </div>
       </div>
 
