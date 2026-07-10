@@ -271,9 +271,25 @@ export default function Landing() {
       </div>
 
       {/* Hero — headline sebagai fokus utama, tinggi ~60vh, urutan: headline,
-          subheadline, CTA, lalu visual motor (bisnis inti DIGJAYA). */}
-      <div className="bg-gray-900 min-h-[60vh] flex flex-col justify-center px-5 py-10">
-        <div className="max-w-xs mx-auto w-full text-center">
+          subheadline, CTA, lalu visual motor (bisnis inti DIGJAYA). Tiga lapisan
+          dekoratif (grid, watermark logo, glow) murni tekstur/kedalaman — semua
+          pointer-events-none dan berada di belakang konten (z-10). */}
+      <div className="relative overflow-hidden bg-gray-900 min-h-[60vh] flex flex-col justify-center px-5 py-10">
+        {/* Tekstur grid tipis */}
+        <div className="absolute inset-0 hero-grid pointer-events-none" />
+
+        {/* Watermark logo — sisi kiri, sangat samar, hanya kedalaman visual */}
+        <img
+          src="/logo.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute -left-32 top-1/2 -translate-y-1/2 w-[600px] h-[600px] object-contain opacity-[0.06] pointer-events-none select-none"
+        />
+
+        {/* Glow oranye — halus, bergerak sangat pelan */}
+        <div className="absolute top-1/3 -right-16 w-80 h-80 bg-orange-500/8 rounded-full blur-3xl pointer-events-none animate-[hero-float_26s_ease-in-out_infinite]" />
+
+        <div className="relative z-10 max-w-xs mx-auto w-full text-center">
           <h1 className="text-[2rem] font-bold text-white leading-tight">
             Sewa Motor di Kalijati &amp; Subang
           </h1>
@@ -297,7 +313,7 @@ export default function Landing() {
             </a>
           </div>
 
-          <div className="mt-6 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+          <div className="mt-6 rounded-2xl overflow-hidden shadow-lg shadow-black/20 transition-transform duration-300 hover:-translate-y-1">
             <img
               src={HERO_IMAGE}
               alt="Motor DIGJAYA Rental"

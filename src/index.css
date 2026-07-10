@@ -2,3 +2,17 @@
 
 * { -webkit-tap-highlight-color: transparent; }
 body { font-family: system-ui, -apple-system, sans-serif; }
+
+/* Dekorasi Hero — glow yang bergerak sangat pelan (dipakai via animate-[hero-float_...]) */
+@keyframes hero-float {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(12px, -16px); }
+}
+
+/* Dekorasi Hero — tekstur grid tipis, murni visual, tidak mengganggu keterbacaan */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
