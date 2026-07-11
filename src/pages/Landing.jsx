@@ -59,17 +59,17 @@ function VehicleSilhouettes({ className }) {
       <g opacity="0.35" style={{ filter: 'blur(0.5px)' }}>
         <path
           d="M40 150 C40 130 56 117 76 115 L138 115 C156 116 169 127 173 144 L173 152 L40 152 Z"
-          fill="#050505" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5"
+          fill="#1e293b" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5"
         />
-        <circle cx="70" cy="153" r="12" fill="#050505" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
-        <circle cx="150" cy="153" r="12" fill="#050505" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
+        <circle cx="70" cy="153" r="12" fill="#1e293b" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
+        <circle cx="150" cy="153" r="12" fill="#1e293b" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
       </g>
 
       {/* Motor 1 — depan, paling besar */}
       <g style={{ filter: 'drop-shadow(0 0 10px rgba(249,115,22,0.35))' }}>
-        <path d={MOTOR_PATH} fill="#050505" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
-        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
-        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
+        <path d={MOTOR_PATH} fill="#1e293b" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
+        <circle cx="110" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
+        <circle cx="255" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
       </g>
 
       {/* Motor 2 — digeser cukup jauh ke kanan (bukan sekadar diperkecil di
@@ -79,9 +79,9 @@ function VehicleSilhouettes({ className }) {
         opacity="0.85"
         style={{ filter: 'drop-shadow(0 0 8px rgba(249,115,22,0.25))' }}
       >
-        <path d={MOTOR_PATH} fill="#050505" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
-        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
-        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
+        <path d={MOTOR_PATH} fill="#1e293b" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
+        <circle cx="110" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
+        <circle cx="255" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
       </g>
     </svg>
   );
@@ -345,60 +345,69 @@ export default function Landing() {
         </button>
       </div>
 
-      {/* Hero — dua kolom di desktop (kiri teks 45% / kanan ilustrasi 55%),
-          satu kolom di mobile dengan tinggi dibatasi ~58vh supaya katalog mulai
-          terlihat tanpa scroll penuh. Lapisan dekoratif (grid, circuit+dot,
-          watermark logo, glow) murni tekstur — pointer-events-none, di belakang
-          konten (z-10). */}
-      <div className="relative overflow-hidden bg-gray-900 min-h-[58vh] flex flex-col justify-center px-5 py-8 md:py-20">
-        <div className="absolute inset-0 hero-grid pointer-events-none" />
-        <CircuitLines />
+      {/* Hero — dua kolom SELALU (mobile & desktop): teks rata-kiri jadi fokus
+          utama, ilustrasi kendaraan jadi lapisan pendukung di kanan (tegas di
+          desktop, memudar & sebagian keluar layar di mobile). Tinggi tetap
+          (bukan vh) supaya katalog langsung mulai terlihat setelah Hero: 400px
+          mobile, 560px desktop — sesuai brief 380-430px / 520-600px. Lapisan
+          dekoratif (gradient, grid, logo watermark, circuit+dot, glow) murni
+          tekstur — pointer-events-none, di belakang konten (z-10). */}
+      <div className="relative overflow-hidden bg-slate-900 h-[400px] md:h-[560px] flex items-center px-6 md:px-16">
+        {/* Layer 1 — gradient navy halus */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 pointer-events-none" />
+
+        {/* Layer 2 — grid tipis, bergeser sangat lambat */}
+        <div className="absolute inset-0 hero-grid pointer-events-none animate-[grid-drift_40s_linear_infinite]" />
+
+        {/* Layer 3 — watermark logo, sangat besar, opacity ~3%, floating halus */}
         <img
           src="/logo.png"
           alt=""
           aria-hidden="true"
-          className="absolute -left-40 top-1/2 -translate-y-1/2 w-[600px] h-[600px] object-contain opacity-[0.06] blur-[1px] pointer-events-none select-none"
+          className="absolute -left-28 top-8 md:top-16 w-[480px] md:w-[680px] opacity-[0.03] blur-sm pointer-events-none select-none animate-[logo-float_20s_ease-in-out_infinite]"
         />
-        <div className="absolute top-1/4 right-0 md:right-[8%] w-80 h-80 bg-orange-500/8 rounded-full blur-3xl pointer-events-none animate-[hero-float_26s_ease-in-out_infinite]" />
 
-        <div className="relative z-10 max-w-6xl mx-auto w-full md:grid md:grid-cols-[45%_55%] md:gap-10 md:items-center">
-          {/* Kolom kiri — headline, subheadline, CTA */}
-          <div className="max-w-xs mx-auto md:max-w-md md:mx-0 text-center md:text-left">
-            <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-3">
-              Kalijati &amp; Subang
-            </p>
-            <h1 className="text-[2rem] md:text-4xl font-bold text-white leading-tight">
-              Sewa Motor di Kalijati &amp; Subang
-            </h1>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed mt-3">
-              Booking online. Motor diantar langsung ke lokasi Anda. Mobil juga tersedia.
-            </p>
+        {/* Layer 4 — pattern circuit + titik koneksi */}
+        <CircuitLines />
 
-            <div className="mt-5 flex gap-3 md:max-w-sm">
-              <button
-                onClick={() => navigate('/booking')}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
-              >
-                Pesan Sekarang
-              </button>
-              <a
-                href={`https://wa.me/${ADMIN_WA_NUMBER}`}
-                target="_blank" rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
-              >
-                <MessageCircle className="w-4 h-4" /> Chat WhatsApp
-              </a>
-            </div>
+        {/* Layer 5 — orange glow, sangat halus, floating pelan */}
+        <div className="absolute top-1/4 right-0 md:right-[6%] w-72 h-72 md:w-96 md:h-96 bg-orange-500/6 rounded-full blur-3xl pointer-events-none animate-[hero-float_26s_ease-in-out_infinite]" />
 
-            {/* Ilustrasi versi ringkas — mobile saja, versi penuh ada di kolom kanan (desktop) */}
-            <div className="mt-6 md:hidden">
-              <VehicleSilhouettes className="w-full h-48" />
-            </div>
-          </div>
+        {/* Ilustrasi kendaraan — lapisan pendukung, bukan fokus utama */}
+        <div
+          className="absolute opacity-20 pointer-events-none
+                     right-[-70px] bottom-[-10px] w-[260px]
+                     md:right-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:w-[520px]"
+        >
+          <VehicleSilhouettes className="w-full h-auto animate-[silhouette-float_16s_ease-in-out_infinite]" />
+        </div>
 
-          {/* Kolom kanan — ilustrasi siluet, desktop saja */}
-          <div className="hidden md:block relative h-80">
-            <VehicleSilhouettes className="w-full h-full" />
+        {/* Konten — selalu rata kiri, tidak pernah center */}
+        <div className="relative z-10 max-w-[15rem] md:max-w-md text-left">
+          <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-3">
+            Kalijati &bull; Subang
+          </p>
+          <h1 className="text-[1.75rem] md:text-5xl font-bold text-white leading-[1.15] md:leading-tight">
+            Sewa Motor di Kalijati &amp; Subang
+          </h1>
+          <p className="text-gray-300 text-sm md:text-base leading-relaxed mt-3">
+            Booking online. Motor diantar langsung ke lokasi Anda. Mobil juga tersedia.
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              onClick={() => navigate('/booking')}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+            >
+              Pesan Sekarang
+            </button>
+            <a
+              href={`https://wa.me/${ADMIN_WA_NUMBER}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold px-6 py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+            >
+              <MessageCircle className="w-4 h-4" /> Chat WhatsApp
+            </a>
           </div>
         </div>
       </div>

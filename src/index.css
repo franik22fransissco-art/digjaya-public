@@ -9,6 +9,24 @@ body { font-family: system-ui, -apple-system, sans-serif; }
   50%      { transform: translate(12px, -16px); }
 }
 
+/* Dekorasi Hero — watermark logo, floating sangat halus */
+@keyframes logo-float {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(10px, -12px); }
+}
+
+/* Dekorasi Hero — siluet kendaraan, floating 3-5px */
+@keyframes silhouette-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* Dekorasi Hero — grid tipis, bergeser sangat lambat */
+@keyframes grid-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 32px 32px; }
+}
+
 /* Dekorasi Hero — tekstur grid tipis, murni visual, tidak mengganggu keterbacaan */
 .hero-grid {
   background-image:
