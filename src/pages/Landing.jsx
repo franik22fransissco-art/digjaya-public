@@ -7,34 +7,6 @@ import { ADMIN_WA_NUMBER } from '../utils/constants';
 const FALLBACK_MOTOR = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80';
 const FALLBACK_MOBIL = 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80';
 
-// Dekorasi latar Hero — garis "circuit" + titik koneksi tipis, menggemakan
-// motif node-dan-garis pada logo DIGJAYA. Murni tekstur, opacity sangat rendah.
-// preserveAspectRatio="xMidYMid slice" (bukan "none") supaya garis tegak-lurus
-// tidak ikut ter-skew jadi diagonal saat rasio Hero jauh dari rasio viewBox.
-function CircuitLines() {
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
-    >
-      <g stroke="#f97316" strokeOpacity="0.12" strokeWidth="1" fill="none">
-        <path d="M0 90 H170 V150 H330" />
-        <path d="M0 360 H130 V420 H270 V470" />
-        <path d="M800 110 H630 V50" />
-        <path d="M800 390 H650 V330 H520" />
-      </g>
-      <g fill="#f97316" fillOpacity="0.3">
-        <circle cx="170" cy="90" r="2.5" />
-        <circle cx="330" cy="150" r="2.5" />
-        <circle cx="130" cy="360" r="2.5" />
-        <circle cx="270" cy="470" r="2.5" />
-        <circle cx="630" cy="110" r="2.5" />
-        <circle cx="520" cy="390" r="2.5" />
-      </g>
-    </svg>
-  );
-}
-
 function getDefaultPhoto(unit) {
   if (unit.foto_url) return unit.foto_url;
   return unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
@@ -293,75 +265,84 @@ export default function Landing() {
         </button>
       </div>
 
-      {/* Hero — dua kolom SELALU (mobile & desktop): teks rata-kiri jadi fokus
-          utama, ilustrasi kendaraan jadi lapisan pendukung di kanan (tegas di
-          desktop, memudar & sebagian keluar layar di mobile). Tinggi tetap
-          (bukan vh) supaya katalog langsung mulai terlihat setelah Hero: 400px
-          mobile, 560px desktop — sesuai brief 380-430px / 520-600px. Lapisan
-          dekoratif (gradient, grid, logo watermark, circuit+dot, glow) murni
-          tekstur — pointer-events-none, di belakang konten (z-10). */}
-      <div className="relative overflow-hidden bg-slate-900 h-[400px] md:h-[560px] flex items-center px-6 md:px-16">
-        {/* Layer 1 — gradient navy halus */}
+      {/* Hero — dua kolom TETAP (mobile & desktop, tidak pernah ditumpuk):
+          kolom kiri 45% teks rata-kiri, kolom kanan 55% artwork foto asli
+          (public/hero-vehicles.png + public/brand-wall.png). Tinggi tetap
+          (bukan vh): 400px mobile, 560px desktop. Outer overflow-hidden jadi
+          satu-satunya batas crop — kolom artwork boleh membiarkan gambar
+          "keluar" dari lebar 55%-nya sendiri untuk kesan besar/premium,
+          selama masih terpotong rapi oleh tepi Hero. */}
+      <div className="relative overflow-hidden bg-slate-900 h-[400px] md:h-[560px] flex items-center">
+        {/* Layer dasar — gradient navy halus */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 pointer-events-none" />
 
-        {/* Layer 2 — grid tipis, bergeser sangat lambat */}
-        <div className="absolute inset-0 hero-grid pointer-events-none animate-[grid-drift_40s_linear_infinite]" />
+        {/* Kolom kanan — artwork, absolute penuh tinggi, ~55% lebar */}
+        <div className="absolute inset-y-0 right-0 w-[55%] pointer-events-none">
+          {/* Background artwork — brand-wall.png (logo + motif circuit asli),
+              layer paling belakang: opacity rendah, blur ringan, di-mask ke
+              kiri supaya membaur ke gradient, tidak mengganggu teks. */}
+          <img
+            src="/brand-wall.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover object-right opacity-20 blur-[2px] select-none"
+            style={{
+              maskImage: 'linear-gradient(to left, black 35%, transparent 90%)',
+              WebkitMaskImage: 'linear-gradient(to left, black 35%, transparent 90%)',
+            }}
+          />
 
-        {/* Layer 3 — watermark logo, sangat besar, opacity ~3%, floating halus */}
-        <img
-          src="/logo.png"
-          alt=""
-          aria-hidden="true"
-          className="absolute -left-28 top-8 md:top-16 w-[480px] md:w-[680px] opacity-[0.03] blur-sm pointer-events-none select-none animate-[logo-float_20s_ease-in-out_infinite]"
-        />
+          {/* Radial glow oranye, sangat tipis, floating pelan */}
+          <div className="absolute top-1/3 right-[8%] w-72 h-72 md:w-[28rem] md:h-[28rem] bg-orange-500/8 rounded-full blur-3xl animate-[hero-float_26s_ease-in-out_infinite]" />
 
-        {/* Layer 4 — pattern circuit + titik koneksi */}
-        <CircuitLines />
+          {/* Vignette halus supaya tepi artwork menyatu, bukan terlihat ditempel */}
+          <div
+            className="absolute inset-0"
+            style={{ background: 'radial-gradient(ellipse at right, transparent 45%, rgba(2,6,23,0.55) 100%)' }}
+          />
 
-        {/* Layer 5 — orange glow, sangat halus, floating pelan */}
-        <div className="absolute top-1/4 right-0 md:right-[6%] w-72 h-72 md:w-96 md:h-96 bg-orange-500/6 rounded-full blur-3xl pointer-events-none animate-[hero-float_26s_ease-in-out_infinite]" />
+          {/* Foreground artwork — hero-vehicles.png (motor jadi fokus, mobil
+              pelengkap), sengaja diperbesar melebihi kolom & di-mask ke kiri
+              supaya seolah "meluber" dari sisi kanan Hero. */}
+          <img
+            src="/hero-vehicles.png"
+            alt="Motor PCX, NMAX, dan mobil armada DIGJAYA Rental"
+            className="absolute right-[-6%] bottom-0 w-[150%] max-w-none object-contain object-right
+                       md:right-[-3%] md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:w-[120%]
+                       drop-shadow-[0_25px_35px_rgba(0,0,0,0.45)]
+                       animate-[silhouette-float_7s_ease-in-out_infinite]"
+            style={{
+              maskImage: 'linear-gradient(to left, black 62%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to left, black 62%, transparent 100%)',
+            }}
+          />
+        </div>
 
-        {/* Ilustrasi kendaraan — foto render asli (public/hero-vehicles.png),
-            menggantikan siluet SVG. Tepi kiri di-mask supaya membaur ke
-            background gelap, bukan terlihat sebagai kotak foto yang ditempel. */}
-        <img
-          src="/hero-vehicles.png"
-          alt="Motor PCX, NMAX, dan mobil armada DIGJAYA Rental"
-          className="absolute pointer-events-none object-contain object-right
-                     right-[-40px] bottom-0 w-[340px] opacity-90
-                     md:right-0 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:w-[640px] md:opacity-100
-                     animate-[silhouette-float_16s_ease-in-out_infinite]"
-          style={{
-            maskImage: 'linear-gradient(to left, black 60%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to left, black 60%, transparent 100%)',
-          }}
-        />
-
-        {/* Konten — selalu rata kiri, tidak pernah center */}
-        <div className="relative z-10 max-w-[15rem] md:max-w-md text-left">
-          <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-3">
+        {/* Kolom kiri — konten, rata kiri, ~45% lebar, selalu di atas artwork */}
+        <div className="relative z-10 w-[45%] flex flex-col justify-center px-4 sm:px-6 md:px-16">
+          <p className="text-orange-400 text-[0.65rem] md:text-xs font-semibold tracking-[0.18em] md:tracking-[0.2em] uppercase mb-2 md:mb-3">
             Kalijati &bull; Subang
           </p>
-          <h1 className="text-[1.75rem] md:text-5xl font-bold text-white leading-[1.15] md:leading-tight">
+          <h1 className="text-xl sm:text-2xl md:text-5xl font-bold text-white leading-[1.2] md:leading-tight">
             Sewa Motor di Kalijati &amp; Subang
           </h1>
-          <p className="text-gray-300 text-sm md:text-base leading-relaxed mt-3">
-            Booking online. Motor diantar langsung ke lokasi Anda. Mobil juga tersedia.
+          <p className="text-gray-300 text-[0.7rem] sm:text-sm md:text-base leading-relaxed mt-2 md:mt-3">
+            Booking online. Motor diantar langsung ke lokasi. Mobil juga tersedia.
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-4 md:mt-5 flex flex-col sm:flex-row flex-wrap gap-2 md:gap-3">
             <button
               onClick={() => navigate('/booking')}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2.5 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm transition-colors duration-200 active:scale-[0.98] w-fit"
             >
               Pesan Sekarang
             </button>
             <a
               href={`https://wa.me/${ADMIN_WA_NUMBER}`}
               target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold px-6 py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold px-4 py-2.5 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm transition-colors duration-200 active:scale-[0.98] w-fit"
             >
-              <MessageCircle className="w-4 h-4" /> Chat WhatsApp
+              <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" /> Chat WhatsApp
             </a>
           </div>
         </div>
