@@ -35,58 +35,6 @@ function CircuitLines() {
   );
 }
 
-// Ilustrasi siluet kendaraan — geometris/abstrak (bukan foto, bukan render
-// presisi model tertentu), gaya minimal ala Linear/Vercel: fill gelap, garis
-// tepi oranye tipis sebagai "rim light", glow lantai hangat di bawah roda,
-// tanpa detail berlebihan. 2 motor di depan (lebih besar, terpisah jelas
-// supaya roda tidak bertumpuk), 1 mobil di belakang (lebih kecil, lebih samar).
-const MOTOR_PATH = 'M85 228 C80 195 105 165 145 158 C175 153 195 150 210 130 C218 120 232 116 245 122 C258 128 262 145 253 158 C245 168 240 180 240 195 L240 228 Z';
-
-function VehicleSilhouettes({ className }) {
-  return (
-    <svg viewBox="0 0 520 280" className={className} aria-hidden="true">
-      <defs>
-        <radialGradient id="heroFloorGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#f97316" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
-      {/* Glow lantai — kesan cahaya hangat di bawah kendaraan */}
-      <ellipse cx="270" cy="250" rx="230" ry="28" fill="url(#heroFloorGlow)" />
-
-      {/* Mobil — paling belakang, kecil, samar, tidak tumpang tindih dengan motor */}
-      <g opacity="0.35" style={{ filter: 'blur(0.5px)' }}>
-        <path
-          d="M40 150 C40 130 56 117 76 115 L138 115 C156 116 169 127 173 144 L173 152 L40 152 Z"
-          fill="#1e293b" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5"
-        />
-        <circle cx="70" cy="153" r="12" fill="#1e293b" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
-        <circle cx="150" cy="153" r="12" fill="#1e293b" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
-      </g>
-
-      {/* Motor 1 — depan, paling besar */}
-      <g style={{ filter: 'drop-shadow(0 0 10px rgba(249,115,22,0.35))' }}>
-        <path d={MOTOR_PATH} fill="#1e293b" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
-        <circle cx="110" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
-        <circle cx="255" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
-      </g>
-
-      {/* Motor 2 — digeser cukup jauh ke kanan (bukan sekadar diperkecil di
-          tempat) supaya rodanya tidak bertumpuk dengan roda depan Motor 1 */}
-      <g
-        transform="translate(228 10) scale(0.75)"
-        opacity="0.85"
-        style={{ filter: 'drop-shadow(0 0 8px rgba(249,115,22,0.25))' }}
-      >
-        <path d={MOTOR_PATH} fill="#1e293b" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
-        <circle cx="110" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
-        <circle cx="255" cy="230" r="27" fill="#1e293b" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
-      </g>
-    </svg>
-  );
-}
-
 function getDefaultPhoto(unit) {
   if (unit.foto_url) return unit.foto_url;
   return unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
@@ -373,14 +321,21 @@ export default function Landing() {
         {/* Layer 5 — orange glow, sangat halus, floating pelan */}
         <div className="absolute top-1/4 right-0 md:right-[6%] w-72 h-72 md:w-96 md:h-96 bg-orange-500/6 rounded-full blur-3xl pointer-events-none animate-[hero-float_26s_ease-in-out_infinite]" />
 
-        {/* Ilustrasi kendaraan — lapisan pendukung, bukan fokus utama */}
-        <div
-          className="absolute opacity-20 pointer-events-none
-                     right-[-70px] bottom-[-10px] w-[260px]
-                     md:right-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:w-[520px]"
-        >
-          <VehicleSilhouettes className="w-full h-auto animate-[silhouette-float_16s_ease-in-out_infinite]" />
-        </div>
+        {/* Ilustrasi kendaraan — foto render asli (public/hero-vehicles.png),
+            menggantikan siluet SVG. Tepi kiri di-mask supaya membaur ke
+            background gelap, bukan terlihat sebagai kotak foto yang ditempel. */}
+        <img
+          src="/hero-vehicles.png"
+          alt="Motor PCX, NMAX, dan mobil armada DIGJAYA Rental"
+          className="absolute pointer-events-none object-contain object-right
+                     right-[-40px] bottom-0 w-[340px] opacity-90
+                     md:right-0 md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:w-[640px] md:opacity-100
+                     animate-[silhouette-float_16s_ease-in-out_infinite]"
+          style={{
+            maskImage: 'linear-gradient(to left, black 60%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to left, black 60%, transparent 100%)',
+          }}
+        />
 
         {/* Konten — selalu rata kiri, tidak pernah center */}
         <div className="relative z-10 max-w-[15rem] md:max-w-md text-left">
