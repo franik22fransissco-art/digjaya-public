@@ -13,10 +13,10 @@ function getDefaultPhoto(unit) {
 }
 
 const STATUS_LABEL = {
-  READY:   { label: 'Tersedia', cls: 'bg-emerald-500 text-white' },
-  BOOKING: { label: 'Dipesan',  cls: 'bg-amber-400 text-white'   },
-  JALAN:   { label: 'Disewa',   cls: 'bg-sky-500 text-white'     },
-  SERVIS:  { label: 'Servis',   cls: 'bg-rose-500 text-white'    },
+  READY:   { label: 'Tersedia', cls: 'bg-white/90 backdrop-blur-sm text-emerald-600 border border-emerald-100' },
+  BOOKING: { label: 'Dipesan',  cls: 'bg-white/90 backdrop-blur-sm text-amber-600 border border-amber-100'     },
+  JALAN:   { label: 'Disewa',   cls: 'bg-white/90 backdrop-blur-sm text-sky-600 border border-sky-100'         },
+  SERVIS:  { label: 'Servis',   cls: 'bg-white/90 backdrop-blur-sm text-rose-600 border border-rose-100'       },
 };
 
 function fmtRp(n) {
@@ -56,7 +56,7 @@ const FAQ = [
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={`bg-white rounded-2xl border transition-colors duration-200 ${
+    <div className={`bg-white rounded-2xl border shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] transition-colors duration-200 ${
       open ? 'border-orange-200' : 'border-gray-100'
     }`}>
       <button
@@ -152,19 +152,19 @@ function UnitCard({ unit, onClick }) {
   return (
     <div
       onClick={() => available && onClick(unit)}
-      className={`rounded-2xl overflow-hidden bg-white shadow-sm border transition-all duration-200 ${
+      className={`rounded-2xl overflow-hidden bg-white border transition-all duration-200 ${
         available
-          ? 'border-gray-100 cursor-pointer active:scale-[0.97] hover:shadow-md hover:border-orange-200'
-          : 'border-gray-100 opacity-55 cursor-not-allowed'
+          ? 'border-gray-100 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] cursor-pointer active:scale-[0.97] hover:-translate-y-1 hover:shadow-[0_16px_32px_-12px_rgba(0,0,0,0.14)] hover:border-orange-200'
+          : 'border-gray-100 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] opacity-55 cursor-not-allowed'
       }`}
     >
-      <div className="relative h-40 bg-gray-100 overflow-hidden">
+      <div className="relative h-44 bg-gray-100 overflow-hidden">
         {photoLoading ? (
           <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
         ) : photo && !imgErr ? (
           <img
             src={photo} alt={unit.nama}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover animate-[fade-in_250ms_ease-out]"
             onError={handleImgError}
           />
         ) : (
@@ -179,18 +179,18 @@ function UnitCard({ unit, onClick }) {
         <span className={`absolute top-2.5 left-2.5 text-xs font-semibold px-2.5 py-1 rounded-full ${st.cls}`}>
           {st.label}
         </span>
-        <div className="absolute bottom-0 inset-x-0 px-3.5 pb-3 pt-6">
+        <div className="absolute bottom-0 inset-x-0 px-4 pb-3 pt-6">
           <p className="text-white font-semibold text-sm truncate leading-snug">{unit.nama}</p>
           <p className="text-white/60 text-xs">{unit.tipe}</p>
         </div>
       </div>
 
-      <div className="p-3.5">
+      <div className="p-4">
         {harga12 && (
           <div className="flex items-baseline justify-between mb-3">
             <div>
               <p className="text-xs text-gray-400 leading-none">mulai dari</p>
-              <p className="text-sm font-bold text-orange-500 mt-1">
+              <p className="text-base font-extrabold text-orange-500 mt-1">
                 Rp {harga12}<span className="text-xs font-medium text-gray-400"> /12jam</span>
               </p>
             </div>
@@ -202,7 +202,7 @@ function UnitCard({ unit, onClick }) {
           </div>
         )}
         {available ? (
-          <button className="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 transition-colors duration-200 text-white text-xs font-semibold tracking-wide">
+          <button className="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 hover:shadow-[0_4px_14px_rgba(249,115,22,0.35)] transition-all duration-200 text-white text-xs font-semibold tracking-wide">
             Pesan Sekarang
           </button>
         ) : (
@@ -266,29 +266,32 @@ export default function Landing() {
       </div>
 
       {/* Hero — dua kolom TETAP (mobile & desktop, tidak pernah ditumpuk):
-          kolom kiri 45% teks rata-kiri, kolom kanan 55% artwork foto asli
-          (public/hero-vehicles.png + public/brand-wall.png). Tinggi tetap
-          (bukan vh): 400px mobile, 560px desktop. Outer overflow-hidden jadi
-          satu-satunya batas crop — kolom artwork boleh membiarkan gambar
-          "keluar" dari lebar 55%-nya sendiri untuk kesan besar/premium,
-          selama masih terpotong rapi oleh tepi Hero. */}
-      <div className="relative overflow-hidden bg-slate-900 h-[400px] md:h-[560px] flex items-center">
+          kolom kiri ~45% teks rata-kiri (Display headline: 32px mobile,
+          44px desktop), kolom kanan ~55% artwork foto asli
+          (public/hero-vehicles.png + public/brand-wall.png). Tinggi tetap:
+          420px mobile, 560px desktop. Outer overflow-hidden jadi satu-
+          satunya batas crop — vehicle artwork sengaja lebih besar dari
+          kolomnya sendiri (bottom:0 right:-40px height:105%) agar sebagian
+          "keluar" dan terlihat besar/premium, tetap terpotong rapi oleh
+          tepi Hero. */}
+      <div className="relative overflow-hidden bg-slate-900 h-[420px] md:h-[560px] flex items-center">
         {/* Layer dasar — gradient navy halus */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 pointer-events-none" />
 
         {/* Kolom kanan — artwork, absolute penuh tinggi, ~55% lebar */}
         <div className="absolute inset-y-0 right-0 w-[55%] pointer-events-none">
           {/* Background artwork — brand-wall.png (logo + motif circuit asli),
-              layer paling belakang: opacity rendah, blur ringan, di-mask ke
-              kiri supaya membaur ke gradient, tidak mengganggu teks. */}
+              layer paling belakang: opacity sangat rendah, blur ringan,
+              mix-blend-overlay supaya jadi tekstur yang menyatu ke gradient
+              navy, bukan terlihat sebagai foto yang ditempel. */}
           <img
             src="/brand-wall.png"
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover object-right opacity-20 blur-[2px] select-none"
+            className="absolute inset-0 w-full h-full object-cover object-right opacity-[0.12] blur-sm mix-blend-overlay select-none"
             style={{
-              maskImage: 'linear-gradient(to left, black 35%, transparent 90%)',
-              WebkitMaskImage: 'linear-gradient(to left, black 35%, transparent 90%)',
+              maskImage: 'linear-gradient(to left, black 30%, transparent 85%)',
+              WebkitMaskImage: 'linear-gradient(to left, black 30%, transparent 85%)',
             }}
           />
 
@@ -302,45 +305,46 @@ export default function Landing() {
           />
 
           {/* Foreground artwork — hero-vehicles.png (motor jadi fokus, mobil
-              pelengkap), sengaja diperbesar melebihi kolom & di-mask ke kiri
-              supaya seolah "meluber" dari sisi kanan Hero. */}
+              pelengkap): bottom:0, right:-40px, height:105%, object-contain,
+              sengaja "meluber" keluar kolom untuk kesan besar & premium. */}
           <img
             src="/hero-vehicles.png"
             alt="Motor PCX, NMAX, dan mobil armada DIGJAYA Rental"
-            className="absolute right-[-6%] bottom-0 w-[150%] max-w-none object-contain object-right
-                       md:right-[-3%] md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:w-[120%]
+            className="absolute bottom-0 right-[-40px] h-[105%] w-auto max-w-none object-contain object-bottom
                        drop-shadow-[0_25px_35px_rgba(0,0,0,0.45)]
                        animate-[silhouette-float_7s_ease-in-out_infinite]"
             style={{
-              maskImage: 'linear-gradient(to left, black 62%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to left, black 62%, transparent 100%)',
+              maskImage: 'linear-gradient(to left, black 55%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to left, black 55%, transparent 100%)',
             }}
           />
         </div>
 
-        {/* Kolom kiri — konten, rata kiri, ~45% lebar, selalu di atas artwork */}
-        <div className="relative z-10 w-[45%] flex flex-col justify-center px-4 sm:px-6 md:px-16">
-          <p className="text-orange-400 text-[0.65rem] md:text-xs font-semibold tracking-[0.18em] md:tracking-[0.2em] uppercase mb-2 md:mb-3">
+        {/* Kolom kiri — konten, rata kiri, ~45% lebar, selalu di atas artwork.
+            Hierarchy tetap: eyebrow → headline → subheadline → CTA, tanpa
+            elemen lain. */}
+        <div className="relative z-10 w-[45%] flex flex-col justify-center px-4 md:px-16">
+          <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-2 md:mb-3">
             Kalijati &bull; Subang
           </p>
-          <h1 className="text-xl sm:text-2xl md:text-5xl font-bold text-white leading-[1.2] md:leading-tight">
+          <h1 className="text-[2rem] md:text-[2.75rem] font-bold text-white leading-[1.1] md:leading-[1.1]">
             Sewa Motor di Kalijati &amp; Subang
           </h1>
-          <p className="text-gray-300 text-[0.7rem] sm:text-sm md:text-base leading-relaxed mt-2 md:mt-3">
-            Booking online. Motor diantar langsung ke lokasi. Mobil juga tersedia.
+          <p className="text-gray-300 text-xs md:text-base leading-relaxed mt-3 md:mt-4">
+            Motor diantar langsung ke lokasi Anda.
           </p>
 
-          <div className="mt-4 md:mt-5 flex flex-col sm:flex-row flex-wrap gap-2 md:gap-3">
+          <div className="mt-5 md:mt-7 flex flex-col md:flex-row gap-2 md:gap-3">
             <button
               onClick={() => navigate('/booking')}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2.5 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm transition-colors duration-200 active:scale-[0.98] w-fit"
+              className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-3 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm transition-all duration-200 active:scale-[0.97] text-center"
             >
               Pesan Sekarang
             </button>
             <a
               href={`https://wa.me/${ADMIN_WA_NUMBER}`}
               target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold px-4 py-2.5 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm transition-colors duration-200 active:scale-[0.98] w-fit"
+              className="w-full md:w-auto flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold px-5 py-3 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm transition-all duration-200 active:scale-[0.97]"
             >
               <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" /> Chat WhatsApp
             </a>
@@ -348,13 +352,23 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Katalog — fokus utama halaman, langsung setelah Hero */}
-      <div id="katalog" className="px-4 pt-12 pb-2">
+      {/* Transisi premium — sheet melengkung menutupi ujung Hero supaya
+          menyatu ke konten, bukan potongan tegas gelap→putih. Membungkus
+          Katalog + Cara Pesan + FAQ dalam satu latar konsisten. */}
+      <div className="relative -mt-5 rounded-t-3xl bg-gray-50 shadow-[0_-12px_24px_-16px_rgba(0,0,0,0.15)]">
+
+      {/* Katalog — fokus utama halaman, langsung setelah Hero. Header
+          section memakai accent-bar yang sama dengan Cara Pesan & FAQ
+          supaya seluruh halaman terasa satu design system. */}
+      <div id="katalog" className="px-4 pt-10 pb-2">
         <div className="flex items-end justify-between mb-5">
           <div>
-            <h2 className="font-bold text-gray-900 text-lg leading-tight">Armada Kami</h2>
+            <div className="flex items-center gap-2.5 mb-1">
+              <div className="w-1 h-5 bg-orange-500 rounded-full" />
+              <h2 className="font-bold text-gray-900 text-lg leading-tight">Armada Kami</h2>
+            </div>
             {!loading && (
-              <p className="text-xs text-gray-500 mt-1">{readyCount} unit siap disewa</p>
+              <p className="text-xs text-gray-500 ml-3.5">{readyCount} unit siap disewa</p>
             )}
           </div>
           <div className="flex bg-gray-100 rounded-xl p-1 gap-0.5">
@@ -377,7 +391,7 @@ export default function Landing() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3.5">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="rounded-2xl bg-white h-60 animate-pulse border border-gray-100" />
             ))}
@@ -389,7 +403,7 @@ export default function Landing() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3.5">
               {(showAll ? filtered : filtered.slice(0, 6)).map((u) => (
                 <UnitCard key={u.id} unit={u} onClick={handlePesan} />
               ))}
@@ -408,7 +422,7 @@ export default function Landing() {
 
       {/* Cara Pesan */}
       <div className="px-4 pt-12 pb-4">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] p-5">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-1 h-5 bg-orange-500 rounded-full" />
             <h2 className="font-bold text-gray-900 text-lg">Cara Pesan</h2>
@@ -442,6 +456,8 @@ export default function Landing() {
           {FAQ.map((f) => <FaqItem key={f.q} q={f.q} a={f.a} />)}
         </div>
       </div>
+      </div>
+      {/* — akhir sheet transisi Hero → konten */}
 
       <div className="pt-12">
         <Footer />

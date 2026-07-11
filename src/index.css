@@ -14,3 +14,9 @@ body { font-family: system-ui, -apple-system, sans-serif; }
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-4px); }
 }
+
+/* Fade-in halus saat foto unit selesai dimuat (dipakai via animate-[fade-in_...]) */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
