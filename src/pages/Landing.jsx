@@ -9,11 +9,13 @@ const FALLBACK_MOBIL = 'https://images.unsplash.com/photo-1519641471654-76ce0107
 
 // Dekorasi latar Hero — garis "circuit" + titik koneksi tipis, menggemakan
 // motif node-dan-garis pada logo DIGJAYA. Murni tekstur, opacity sangat rendah.
+// preserveAspectRatio="xMidYMid slice" (bukan "none") supaya garis tegak-lurus
+// tidak ikut ter-skew jadi diagonal saat rasio Hero jauh dari rasio viewBox.
 function CircuitLines() {
   return (
     <svg
       className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 800 500" preserveAspectRatio="none" aria-hidden="true"
+      viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
     >
       <g stroke="#f97316" strokeOpacity="0.12" strokeWidth="1" fill="none">
         <path d="M0 90 H170 V150 H330" />
@@ -35,12 +37,25 @@ function CircuitLines() {
 
 // Ilustrasi siluet kendaraan — geometris/abstrak (bukan foto, bukan render
 // presisi model tertentu), gaya minimal ala Linear/Vercel: fill gelap, garis
-// tepi oranye tipis sebagai "rim light", tanpa detail berlebihan. 2 motor di
-// depan (lebih besar), 1 mobil di belakang (lebih kecil, lebih transparan).
+// tepi oranye tipis sebagai "rim light", glow lantai hangat di bawah roda,
+// tanpa detail berlebihan. 2 motor di depan (lebih besar, terpisah jelas
+// supaya roda tidak bertumpuk), 1 mobil di belakang (lebih kecil, lebih samar).
+const MOTOR_PATH = 'M85 228 C80 195 105 165 145 158 C175 153 195 150 210 130 C218 120 232 116 245 122 C258 128 262 145 253 158 C245 168 240 180 240 195 L240 228 Z';
+
 function VehicleSilhouettes({ className }) {
   return (
-    <svg viewBox="0 0 480 280" className={className} aria-hidden="true">
-      {/* Mobil — paling belakang, kecil, samar */}
+    <svg viewBox="0 0 520 280" className={className} aria-hidden="true">
+      <defs>
+        <radialGradient id="heroFloorGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f97316" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* Glow lantai — kesan cahaya hangat di bawah kendaraan */}
+      <ellipse cx="270" cy="250" rx="230" ry="28" fill="url(#heroFloorGlow)" />
+
+      {/* Mobil — paling belakang, kecil, samar, tidak tumpang tindih dengan motor */}
       <g opacity="0.35" style={{ filter: 'blur(0.5px)' }}>
         <path
           d="M40 150 C40 130 56 117 76 115 L138 115 C156 116 169 127 173 144 L173 152 L40 152 Z"
@@ -50,28 +65,23 @@ function VehicleSilhouettes({ className }) {
         <circle cx="150" cy="153" r="12" fill="#050505" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
       </g>
 
-      {/* Motor 1 — depan kiri, paling besar */}
-      <g style={{ filter: 'drop-shadow(0 0 10px rgba(249,115,22,0.3))' }}>
-        <path
-          d="M85 228 C80 195 105 165 145 158 C175 153 195 150 210 130 C218 120 232 116 245 122 C258 128 262 145 253 158 C245 168 240 180 240 195 L240 228 Z"
-          fill="#050505" stroke="#f97316" strokeOpacity="0.5" strokeWidth="2"
-        />
-        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.5" strokeWidth="2" />
-        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.5" strokeWidth="2" />
+      {/* Motor 1 — depan, paling besar */}
+      <g style={{ filter: 'drop-shadow(0 0 10px rgba(249,115,22,0.35))' }}>
+        <path d={MOTOR_PATH} fill="#050505" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
+        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
+        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.55" strokeWidth="2" />
       </g>
 
-      {/* Motor 2 — depan kanan, sedikit lebih kecil & di belakang motor 1 */}
+      {/* Motor 2 — digeser cukup jauh ke kanan (bukan sekadar diperkecil di
+          tempat) supaya rodanya tidak bertumpuk dengan roda depan Motor 1 */}
       <g
-        transform="translate(150 18) scale(0.8)"
-        opacity="0.8"
-        style={{ filter: 'drop-shadow(0 0 8px rgba(249,115,22,0.22))' }}
+        transform="translate(228 10) scale(0.75)"
+        opacity="0.85"
+        style={{ filter: 'drop-shadow(0 0 8px rgba(249,115,22,0.25))' }}
       >
-        <path
-          d="M85 228 C80 195 105 165 145 158 C175 153 195 150 210 130 C218 120 232 116 245 122 C258 128 262 145 253 158 C245 168 240 180 240 195 L240 228 Z"
-          fill="#050505" stroke="#f97316" strokeOpacity="0.4" strokeWidth="2"
-        />
-        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.4" strokeWidth="2" />
-        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.4" strokeWidth="2" />
+        <path d={MOTOR_PATH} fill="#050505" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
+        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
+        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.45" strokeWidth="2" />
       </g>
     </svg>
   );
@@ -354,6 +364,9 @@ export default function Landing() {
         <div className="relative z-10 max-w-6xl mx-auto w-full md:grid md:grid-cols-[45%_55%] md:gap-10 md:items-center">
           {/* Kolom kiri — headline, subheadline, CTA */}
           <div className="max-w-xs mx-auto md:max-w-md md:mx-0 text-center md:text-left">
+            <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-3">
+              Kalijati &amp; Subang
+            </p>
             <h1 className="text-[2rem] md:text-4xl font-bold text-white leading-tight">
               Sewa Motor di Kalijati &amp; Subang
             </h1>
@@ -378,8 +391,8 @@ export default function Landing() {
             </div>
 
             {/* Ilustrasi versi ringkas — mobile saja, versi penuh ada di kolom kanan (desktop) */}
-            <div className="mt-5 md:hidden">
-              <VehicleSilhouettes className="w-full h-32" />
+            <div className="mt-6 md:hidden">
+              <VehicleSilhouettes className="w-full h-48" />
             </div>
           </div>
 
