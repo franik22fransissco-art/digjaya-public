@@ -31,7 +31,7 @@ function Reveal({ children, className = '' }) {
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} ${className}`}
+      className={`transition-all duration-300 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} ${className}`}
     >
       {children}
     </div>
@@ -95,7 +95,7 @@ function FaqItem({ q, a }) {
     }`}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between gap-3 px-4 py-4 text-left"
+        className="w-full flex items-center justify-between gap-3 px-4 py-4 text-left rounded-2xl hover:bg-gray-50 transition-colors duration-200"
       >
         <span className={`font-semibold text-sm ${open ? 'text-orange-600' : 'text-gray-800'}`}>{q}</span>
         <ChevronDown className={`w-4 h-4 shrink-0 transition-transform duration-200 ${open ? 'rotate-180 text-orange-500' : 'text-gray-300'}`} />
@@ -144,7 +144,7 @@ function Footer() {
             target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-orange-400 font-semibold text-xs bg-orange-500/10 border border-orange-500/20 px-3.5 py-2 rounded-xl active:scale-95 transition-transform duration-200"
           >
-            <MapPin className="w-3.5 h-3.5" /> Lihat di Google Maps
+            <MapPin className="w-4 h-4" /> Lihat di Google Maps
           </a>
         </div>
 
@@ -368,37 +368,44 @@ export default function Landing() {
           />
         </div>
 
-        {/* Kolom kiri — konten, rata kiri, ~45% lebar, selalu di atas artwork.
-            Hierarchy tetap: eyebrow → headline → subheadline → CTA, tanpa
-            elemen lain. Fade-up sekali saat mount (Hero selalu above-the-
-            fold, jadi tidak perlu IntersectionObserver). Headline pakai
-            clamp() fluid supaya tetap satu baris wajar & tidak overflow
-            container di layar sekecil 320px. */}
-        <div className="relative z-10 w-[45%] flex flex-col justify-center px-4 md:pl-[calc((100vw-48rem)/2+1.5rem)] md:pr-6 animate-[fade-up_700ms_ease-out_both]">
-          <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-2 md:mb-3">
-            Kalijati &bull; Subang
-          </p>
-          <h1 className="text-[clamp(1.375rem,6vw,2rem)] md:text-[2.75rem] font-bold text-white leading-[1.15] md:leading-[1.1]">
-            Sewa Motor di Kalijati &amp; Subang
-          </h1>
-          <p className="text-gray-300 text-xs md:text-base leading-relaxed mt-3 md:mt-4">
-            Motor diantar langsung ke lokasi Anda.
-          </p>
+        {/* Kolom kiri — konten, rata kiri, selalu di atas artwork. Hierarchy
+            tetap: eyebrow → headline → subheadline → CTA, tanpa elemen lain.
+            Fade-up sekali saat mount (300ms, Hero selalu above-the-fold).
+            Headline pakai clamp() fluid supaya tetap satu baris wajar &
+            tidak overflow container di layar sekecil 320px.
 
-          <div className="mt-5 md:mt-7 flex flex-col md:flex-row gap-2 md:gap-3">
-            <button
-              onClick={() => navigate('/booking')}
-              className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-3 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm leading-snug transition-all duration-200 active:scale-[0.97] text-center"
-            >
-              Pesan Sekarang
-            </button>
-            <a
-              href={`https://wa.me/${ADMIN_WA_NUMBER}`}
-              target="_blank" rel="noopener noreferrer"
-              className="w-full md:w-auto flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold px-4 py-3 md:px-6 md:py-3.5 rounded-2xl text-xs md:text-sm leading-snug transition-all duration-200 active:scale-[0.97]"
-            >
-              <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" /> Chat WhatsApp
-            </a>
+            Alignment desktop: wrapper luar dipusatkan lewat md:max-w-3xl
+            md:mx-auto (persis mekanisme yang dipakai Header/Katalog/dst di
+            bawahnya) alih-alih calc(100vw...) — 100vw ikut menghitung lebar
+            scrollbar sehingga bisa meleset beberapa px dari lebar sebenarnya;
+            mx-auto tidak punya masalah itu dan otomatis presisi sejajar. */}
+        <div className="relative z-10 h-full flex items-center md:max-w-3xl md:mx-auto md:w-full animate-[fade-up_300ms_ease-out_both]">
+          <div className="w-[45%] px-4 md:w-auto md:max-w-md md:px-6">
+            <p className="text-orange-400 text-xs font-semibold tracking-[0.2em] uppercase mb-2 md:mb-3">
+              Kalijati &bull; Subang
+            </p>
+            <h1 className="text-[clamp(1.375rem,6vw,2rem)] md:text-[2.75rem] font-bold text-white leading-[1.15] md:leading-[1.1]">
+              Sewa Motor di Kalijati &amp; Subang
+            </h1>
+            <p className="text-gray-300 text-xs md:text-base leading-relaxed mt-3 md:mt-4">
+              Motor diantar langsung ke lokasi Anda.
+            </p>
+
+            <div className="mt-5 md:mt-7 flex flex-col md:flex-row gap-2 md:gap-3">
+              <button
+                onClick={() => navigate('/booking')}
+                className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-3.5 rounded-2xl text-xs md:text-sm leading-snug transition-all duration-200 active:scale-[0.97] text-center"
+              >
+                Pesan Sekarang
+              </button>
+              <a
+                href={`https://wa.me/${ADMIN_WA_NUMBER}`}
+                target="_blank" rel="noopener noreferrer"
+                className="w-full md:w-auto flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold px-4 py-3.5 rounded-2xl text-xs md:text-sm leading-snug transition-all duration-200 active:scale-[0.97]"
+              >
+                <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" /> Chat WhatsApp
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -414,7 +421,7 @@ export default function Landing() {
           md:mx-auto menyelaraskan inset kiri dengan Header & Hero di
           desktop (768/1024/1280px), grid naik ke 3 kolom di md+ supaya
           rasio foto unit tidak melebar aneh di layar lebar. */}
-      <div id="katalog" className="px-4 pt-10 pb-2 md:max-w-3xl md:mx-auto md:px-6">
+      <div id="katalog" className="px-4 pt-10 md:max-w-3xl md:mx-auto md:px-6">
         <Reveal>
           <div className="flex items-end justify-between mb-5">
             <div>
@@ -436,7 +443,7 @@ export default function Landing() {
                   key={f.key}
                   onClick={() => { setFilter(f.key); setShowAll(false); }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 ${
-                    filter === f.key ? 'bg-white text-orange-500 shadow-sm' : 'text-gray-400'
+                    filter === f.key ? 'bg-white text-orange-500 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   {f.label}
@@ -454,7 +461,7 @@ export default function Landing() {
                 <div className="p-4 space-y-2">
                   <div className="h-3 w-2/3 rounded-full bg-gray-200 animate-pulse" />
                   <div className="h-3 w-1/3 rounded-full bg-gray-200 animate-pulse" />
-                  <div className="h-8 rounded-xl bg-gray-100 animate-pulse mt-2" />
+                  <div className="h-8 rounded-xl bg-gray-200 animate-pulse mt-2" />
                 </div>
               </div>
             ))}
@@ -479,7 +486,7 @@ export default function Landing() {
             {!showAll && filtered.length > 6 && (
               <button
                 onClick={() => setShowAll(true)}
-                className="w-full mt-4 py-3 rounded-xl border border-orange-200 text-orange-500 text-sm font-semibold active:scale-[0.98] transition-transform duration-200"
+                className="w-full mt-4 py-3 rounded-xl border border-orange-200 text-orange-500 text-sm font-semibold hover:bg-orange-50 active:scale-[0.98] transition-all duration-200"
               >
                 Lihat {filtered.length - 6} Unit Lainnya ↓
               </button>
@@ -490,7 +497,7 @@ export default function Landing() {
 
       {/* Cara Pesan — inset selaras md:max-w-3xl md:mx-auto, dibungkus
           Reveal untuk scroll-reveal saat section ini masuk viewport. */}
-      <div className="px-4 pt-12 pb-4 md:max-w-3xl md:mx-auto md:px-6">
+      <div className="px-4 pt-12 md:max-w-3xl md:mx-auto md:px-6">
         <Reveal>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] p-5">
             <div className="flex items-center gap-2.5 mb-5">
