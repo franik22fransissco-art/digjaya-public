@@ -7,10 +7,75 @@ import { ADMIN_WA_NUMBER } from '../utils/constants';
 const FALLBACK_MOTOR = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80';
 const FALLBACK_MOBIL = 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=600&q=80';
 
-// Visual utama Hero — motor, karena rental motor adalah bisnis inti DIGJAYA.
-// Ganti URL ini saja begitu ada foto asli armada motor; tidak ada bagian lain
-// yang perlu disentuh.
-const HERO_IMAGE = FALLBACK_MOTOR;
+// Dekorasi latar Hero — garis "circuit" + titik koneksi tipis, menggemakan
+// motif node-dan-garis pada logo DIGJAYA. Murni tekstur, opacity sangat rendah.
+function CircuitLines() {
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox="0 0 800 500" preserveAspectRatio="none" aria-hidden="true"
+    >
+      <g stroke="#f97316" strokeOpacity="0.12" strokeWidth="1" fill="none">
+        <path d="M0 90 H170 V150 H330" />
+        <path d="M0 360 H130 V420 H270 V470" />
+        <path d="M800 110 H630 V50" />
+        <path d="M800 390 H650 V330 H520" />
+      </g>
+      <g fill="#f97316" fillOpacity="0.3">
+        <circle cx="170" cy="90" r="2.5" />
+        <circle cx="330" cy="150" r="2.5" />
+        <circle cx="130" cy="360" r="2.5" />
+        <circle cx="270" cy="470" r="2.5" />
+        <circle cx="630" cy="110" r="2.5" />
+        <circle cx="520" cy="390" r="2.5" />
+      </g>
+    </svg>
+  );
+}
+
+// Ilustrasi siluet kendaraan — geometris/abstrak (bukan foto, bukan render
+// presisi model tertentu), gaya minimal ala Linear/Vercel: fill gelap, garis
+// tepi oranye tipis sebagai "rim light", tanpa detail berlebihan. 2 motor di
+// depan (lebih besar), 1 mobil di belakang (lebih kecil, lebih transparan).
+function VehicleSilhouettes({ className }) {
+  return (
+    <svg viewBox="0 0 480 280" className={className} aria-hidden="true">
+      {/* Mobil — paling belakang, kecil, samar */}
+      <g opacity="0.35" style={{ filter: 'blur(0.5px)' }}>
+        <path
+          d="M40 150 C40 130 56 117 76 115 L138 115 C156 116 169 127 173 144 L173 152 L40 152 Z"
+          fill="#050505" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5"
+        />
+        <circle cx="70" cy="153" r="12" fill="#050505" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
+        <circle cx="150" cy="153" r="12" fill="#050505" stroke="#f97316" strokeOpacity="0.25" strokeWidth="1.5" />
+      </g>
+
+      {/* Motor 1 — depan kiri, paling besar */}
+      <g style={{ filter: 'drop-shadow(0 0 10px rgba(249,115,22,0.3))' }}>
+        <path
+          d="M85 228 C80 195 105 165 145 158 C175 153 195 150 210 130 C218 120 232 116 245 122 C258 128 262 145 253 158 C245 168 240 180 240 195 L240 228 Z"
+          fill="#050505" stroke="#f97316" strokeOpacity="0.5" strokeWidth="2"
+        />
+        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.5" strokeWidth="2" />
+        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.5" strokeWidth="2" />
+      </g>
+
+      {/* Motor 2 — depan kanan, sedikit lebih kecil & di belakang motor 1 */}
+      <g
+        transform="translate(150 18) scale(0.8)"
+        opacity="0.8"
+        style={{ filter: 'drop-shadow(0 0 8px rgba(249,115,22,0.22))' }}
+      >
+        <path
+          d="M85 228 C80 195 105 165 145 158 C175 153 195 150 210 130 C218 120 232 116 245 122 C258 128 262 145 253 158 C245 168 240 180 240 195 L240 228 Z"
+          fill="#050505" stroke="#f97316" strokeOpacity="0.4" strokeWidth="2"
+        />
+        <circle cx="110" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.4" strokeWidth="2" />
+        <circle cx="255" cy="230" r="27" fill="#050505" stroke="#f97316" strokeOpacity="0.4" strokeWidth="2" />
+      </g>
+    </svg>
+  );
+}
 
 function getDefaultPhoto(unit) {
   if (unit.foto_url) return unit.foto_url;
@@ -270,55 +335,57 @@ export default function Landing() {
         </button>
       </div>
 
-      {/* Hero — headline sebagai fokus utama, tinggi ~60vh, urutan: headline,
-          subheadline, CTA, lalu visual motor (bisnis inti DIGJAYA). Tiga lapisan
-          dekoratif (grid, watermark logo, glow) murni tekstur/kedalaman — semua
-          pointer-events-none dan berada di belakang konten (z-10). */}
-      <div className="relative overflow-hidden bg-gray-900 min-h-[60vh] flex flex-col justify-center px-5 py-10">
-        {/* Tekstur grid tipis */}
+      {/* Hero — dua kolom di desktop (kiri teks 45% / kanan ilustrasi 55%),
+          satu kolom di mobile dengan tinggi dibatasi ~58vh supaya katalog mulai
+          terlihat tanpa scroll penuh. Lapisan dekoratif (grid, circuit+dot,
+          watermark logo, glow) murni tekstur — pointer-events-none, di belakang
+          konten (z-10). */}
+      <div className="relative overflow-hidden bg-gray-900 min-h-[58vh] flex flex-col justify-center px-5 py-8 md:py-20">
         <div className="absolute inset-0 hero-grid pointer-events-none" />
-
-        {/* Watermark logo — sisi kiri, sangat samar, hanya kedalaman visual */}
+        <CircuitLines />
         <img
           src="/logo.png"
           alt=""
           aria-hidden="true"
-          className="absolute -left-32 top-1/2 -translate-y-1/2 w-[600px] h-[600px] object-contain opacity-[0.06] pointer-events-none select-none"
+          className="absolute -left-40 top-1/2 -translate-y-1/2 w-[600px] h-[600px] object-contain opacity-[0.06] blur-[1px] pointer-events-none select-none"
         />
+        <div className="absolute top-1/4 right-0 md:right-[8%] w-80 h-80 bg-orange-500/8 rounded-full blur-3xl pointer-events-none animate-[hero-float_26s_ease-in-out_infinite]" />
 
-        {/* Glow oranye — halus, bergerak sangat pelan */}
-        <div className="absolute top-1/3 -right-16 w-80 h-80 bg-orange-500/8 rounded-full blur-3xl pointer-events-none animate-[hero-float_26s_ease-in-out_infinite]" />
+        <div className="relative z-10 max-w-6xl mx-auto w-full md:grid md:grid-cols-[45%_55%] md:gap-10 md:items-center">
+          {/* Kolom kiri — headline, subheadline, CTA */}
+          <div className="max-w-xs mx-auto md:max-w-md md:mx-0 text-center md:text-left">
+            <h1 className="text-[2rem] md:text-4xl font-bold text-white leading-tight">
+              Sewa Motor di Kalijati &amp; Subang
+            </h1>
+            <p className="text-gray-300 text-sm md:text-base leading-relaxed mt-3">
+              Booking online. Motor diantar langsung ke lokasi Anda. Mobil juga tersedia.
+            </p>
 
-        <div className="relative z-10 max-w-xs mx-auto w-full text-center">
-          <h1 className="text-[2rem] font-bold text-white leading-tight">
-            Sewa Motor di Kalijati &amp; Subang
-          </h1>
-          <p className="text-gray-300 text-sm leading-relaxed mt-3">
-            Booking online, diantar langsung ke lokasi — mobil juga tersedia.
-          </p>
+            <div className="mt-5 flex gap-3 md:max-w-sm">
+              <button
+                onClick={() => navigate('/booking')}
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+              >
+                Pesan Sekarang
+              </button>
+              <a
+                href={`https://wa.me/${ADMIN_WA_NUMBER}`}
+                target="_blank" rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
+              >
+                <MessageCircle className="w-4 h-4" /> Chat WhatsApp
+              </a>
+            </div>
 
-          <div className="mt-6 flex gap-3">
-            <button
-              onClick={() => navigate('/booking')}
-              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
-            >
-              Pesan Sekarang
-            </button>
-            <a
-              href={`https://wa.me/${ADMIN_WA_NUMBER}`}
-              target="_blank" rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 border border-white/15 hover:border-white/25 text-white font-semibold py-3.5 rounded-2xl text-sm transition-colors duration-200 active:scale-[0.98]"
-            >
-              <MessageCircle className="w-4 h-4" /> Chat WhatsApp
-            </a>
+            {/* Ilustrasi versi ringkas — mobile saja, versi penuh ada di kolom kanan (desktop) */}
+            <div className="mt-5 md:hidden">
+              <VehicleSilhouettes className="w-full h-32" />
+            </div>
           </div>
 
-          <div className="mt-6 rounded-2xl overflow-hidden shadow-lg shadow-black/20 transition-transform duration-300 hover:-translate-y-1">
-            <img
-              src={HERO_IMAGE}
-              alt="Motor DIGJAYA Rental"
-              className="w-full h-36 object-cover"
-            />
+          {/* Kolom kanan — ilustrasi siluet, desktop saja */}
+          <div className="hidden md:block relative h-80">
+            <VehicleSilhouettes className="w-full h-full" />
           </div>
         </div>
       </div>
