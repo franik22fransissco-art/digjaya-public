@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Car, Bike, ChevronDown, MessageCircle, MapPin, Clock, Phone } from 'lucide-react';
-import { getUnits, getUnitPhotos } from '../utils/api';
+import { getUnits, getUnitPhotos, getUnitsEstimasiFinish } from '../utils/api';
 import { ADMIN_WA_NUMBER } from '../utils/constants';
 
 // Reveal — wrapper murni visual untuk micro-interaction "scroll reveal".
@@ -161,19 +161,46 @@ function Footer() {
   );
 }
 
-function UnitCard({ unit, onClick }) {
+// Aturan #6 — format tanggal lokal ringkas untuk info "Disewa sampai ...".
+// Mengikuti pola fmtDate yang sudah ada di CekStatus.jsx (belum ada modul
+// date-utility bersama di repo ini untuk website).
+function fmtEstimasi(str) {
+  if (!str) return '';
+  return new Date(str).toLocaleDateString('id-ID', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
+}
+
+// Bug fix R1 (audit Concurrency & Data Integrity Hardening, Phase 3): foto
+// unit SEKARANG diambil sekali secara batch oleh Landing() (Promise.all,
+// lihat useEffect di bawah), bukan lagi per-kartu lewat useEffect masing-
+// masing UnitCard — pola lama menghasilkan N query Storage `.list()`
+// terpisah untuk N unit (N+1). Logika pemilihan foto ITU SENDIRI TIDAK
+// BERUBAH SAMA SEKALI (tetap `urls[0] || getDefaultPhoto(unit)`, tetap
+// query per-unit yang sama di getUnitPhotos — Supabase Storage tidak
+// punya API untuk "list foto pertama dari N folder" dalam satu panggilan,
+// jadi jumlah query tidak berkurang, tapi paralel via Promise.all &
+// terpusat, bukan lagi tersebar per komponen). `photoResolved`/`photoUrl`
+// dikirim sebagai prop; UnitCard hanya menyimpan state lokal untuk
+// fallback error gambar (handleImgError), bukan untuk fetching.
+function UnitCard({ unit, onClick, estimasiFinish, photoUrl, photoResolved }) {
   const [photo, setPhoto] = useState(null);
   const [imgErr, setImgErr] = useState(false);
-  const [photoLoading, setPhotoLoading] = useState(true);
-  const available = unit.status === 'READY';
+  const photoLoading = !photoResolved;
+  // Aturan #6 — Availability berbasis jadwal, bukan status unit. Status
+  // hanya informasi visual; satu-satunya gerbang nyata adalah jadwal, yang
+  // dicek oleh checkAvailability() (SSOT) saat pelanggan memilih tanggal di
+  // halaman Booking. SERVIS adalah SATU-SATUNYA pengecualian yang tetap
+  // hard-block di sini — bukan aturan baru, tapi mencerminkan business rule
+  // yang sudah ada di apiGetBookingConflict (admin, Sprint 8.5.5): periode
+  // SERVIS tidak selalu punya tgl_selesai (bisa NULL), jadi tidak ada
+  // rentang tanggal yang bisa dibandingkan seperti transaksi biasa.
+  const available = unit.status !== 'SERVIS';
   const st = STATUS_LABEL[unit.status] || STATUS_LABEL.READY;
 
   useEffect(() => {
-    getUnitPhotos(unit.id).then((urls) => {
-      setPhoto(urls[0] || getDefaultPhoto(unit));
-      setPhotoLoading(false);
-    });
-  }, [unit.id]);
+    if (photoResolved) setPhoto(photoUrl || getDefaultPhoto(unit));
+  }, [photoResolved, photoUrl, unit]);
 
   function handleImgError() {
     const fallback = unit.tipe === 'Motor' ? FALLBACK_MOTOR : FALLBACK_MOBIL;
@@ -237,6 +264,12 @@ function UnitCard({ unit, onClick }) {
             )}
           </div>
         )}
+        {unit.status === 'JALAN' && estimasiFinish && (
+          <p className="flex items-center gap-1 text-[11px] text-sky-600 mb-2">
+            <Clock className="w-3 h-3 shrink-0" />
+            Disewa sampai {fmtEstimasi(estimasiFinish)}
+          </p>
+        )}
         {available ? (
           <button className="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 hover:shadow-[0_4px_14px_rgba(249,115,22,0.35)] transition-all duration-200 text-white text-xs font-semibold tracking-wide">
             Pesan Sekarang
@@ -257,6 +290,8 @@ export default function Landing() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState('semua');
   const [showAll, setShowAll] = useState(false);
+  const [estimasiFinishMap, setEstimasiFinishMap] = useState({});
+  const [photosMap, setPhotosMap] = useState({});
 
   useEffect(() => {
     // Simpan kode referral dari URL ke sessionStorage
@@ -267,7 +302,27 @@ export default function Landing() {
       if (res.success) setUnits(res.data);
       setLoading(false);
     });
+    // Aturan #6 — estimasi tanggal selesai unit yang sedang JALAN, dipakai
+    // UnitCard untuk info "Disewa sampai ...".
+    getUnitsEstimasiFinish().then(setEstimasiFinishMap);
   }, []);
+
+  // Bug fix R1 — batch fetch SELURUH foto unit lewat Promise.all sekali,
+  // dipicu setelah daftar unit didapat (butuh unit.id). Jumlah query ke
+  // Storage TIDAK berkurang (tetap 1 per unit — keterbatasan API Storage,
+  // lihat komentar di UnitCard), tapi sekarang paralel & terpusat, bukan
+  // lagi N useEffect terpisah yang tersebar per kartu.
+  useEffect(() => {
+    if (!units.length) return;
+    let active = true;
+    Promise.all(
+      units.map((u) => getUnitPhotos(u.id).then((urls) => [u.id, urls[0] || null]))
+    ).then((pairs) => {
+      if (!active) return;
+      setPhotosMap(Object.fromEntries(pairs));
+    });
+    return () => { active = false; };
+  }, [units]);
 
   const filtered = units.filter((u) => {
     if (filter === 'motor') return u.tipe === 'Motor';
@@ -480,7 +535,12 @@ export default function Landing() {
           <Reveal>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
               {(showAll ? filtered : filtered.slice(0, 6)).map((u) => (
-                <UnitCard key={u.id} unit={u} onClick={handlePesan} />
+                <UnitCard
+                  key={u.id} unit={u} onClick={handlePesan}
+                  estimasiFinish={estimasiFinishMap[u.id]}
+                  photoUrl={photosMap[u.id]}
+                  photoResolved={Object.prototype.hasOwnProperty.call(photosMap, u.id)}
+                />
               ))}
             </div>
             {!showAll && filtered.length > 6 && (

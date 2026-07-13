@@ -7,6 +7,21 @@ import {
 import { getUnits, checkAvailability, checkPelanggan, checkBlacklist, uploadDokumen, submitBooking } from '../utils/api';
 import { compressImage } from '../utils/compressImage';
 
+// Bug fix M2 (audit Concurrency & Data Integrity Hardening): "hari ini" versi
+// komponen tanggal LOKAL, bukan new Date().toISOString().split('T')[0] --
+// pola itu mengonversi ke UTC dulu, yang untuk timezone WIB/WITA/WIT (selalu
+// di depan UTC) bisa menggeser mundur satu hari di jam 00:00-06:59 lokal.
+// Setara dengan localDateISO() di repo digjaya (admin) -- repo ini belum
+// punya modul date-utility bersama, jadi didefinisikan lokal di sini,
+// satu-satunya tempat yang membutuhkannya.
+function todayLocalISO() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 const DURASI_OPTIONS = [
   '6 Jam', '12 Jam', '24 Jam (1 Hari)',
   '2 Hari', '3 Hari', '4 Hari',
@@ -118,6 +133,7 @@ export default function Booking() {
 
   // Availability
   const [avail, setAvail]       = useState(null);
+  const [availWarning, setAvailWarning] = useState(null); // Rule 4 — jadwal mepet, informasi saja
   const [checking, setChecking] = useState(false);
 
   // Dokumen (step 2)
@@ -194,8 +210,9 @@ export default function Booking() {
     if (days >= 1) end.setDate(end.getDate() + Math.floor(days));
     const tglSelesai = end.toISOString().split('T')[0];
     setChecking(true);
-    const ok = await checkAvailability(form.unitId, form.tglMulai, tglSelesai);
-    setAvail(ok);
+    const res = await checkAvailability(form.unitId, form.tglMulai, tglSelesai);
+    setAvail(res.available);
+    setAvailWarning(res.warning || null);
     setChecking(false);
   }
 
@@ -483,7 +500,15 @@ export default function Booking() {
             <Field label="Pilih Unit" required>
               <select className={inputCls} value={form.unitId} onChange={(e) => set('unitId', e.target.value)}>
                 <option value="">-- Pilih Kendaraan --</option>
-                {units.filter((u) => u.status === 'READY').map((u) => (
+                {/* Bug fix M4 (audit Concurrency & Data Integrity Hardening):
+                    diselaraskan dengan Rule 6 (Landing.jsx) -- availability
+                    berbasis jadwal, status hanya informasi visual. SERVIS
+                    tetap satu-satunya pengecualian hard-block (periode
+                    SERVIS tidak selalu punya rentang tanggal yang bisa
+                    dibandingkan seperti transaksi biasa, sama seperti SSOT
+                    admin apiGetBookingConflict). Kepastian tanggal tetap
+                    dicek checkAvailability() saat submit. */}
+                {units.filter((u) => u.status !== 'SERVIS').map((u) => (
                   <option key={u.id} value={u.id}>{u.nama} ({u.tipe})</option>
                 ))}
               </select>
@@ -492,7 +517,7 @@ export default function Booking() {
 
           <Field label="Tanggal Mulai" required>
             <input className={inputCls} type="date"
-              min={new Date().toISOString().split('T')[0]}
+              min={todayLocalISO()}
               value={form.tglMulai} onChange={(e) => set('tglMulai', e.target.value)} />
           </Field>
 
@@ -509,6 +534,10 @@ export default function Booking() {
             </button>
           )}
           {avail === true  && <p className="text-green-600 text-sm font-semibold text-center">✅ Unit tersedia!</p>}
+          {/* Rule 4 — warning jadwal mepet: murni informasi, TIDAK mengubah avail/tombol submit. */}
+          {avail === true && availWarning && (
+            <p className="text-amber-600 text-xs text-center -mt-1">⚠️ {availWarning}</p>
+          )}
           {avail === false && <p className="text-red-500 text-sm font-semibold text-center">❌ Unit sudah dipesan, coba tanggal lain.</p>}
 
           <Field label="Durasi Sewa" required>
